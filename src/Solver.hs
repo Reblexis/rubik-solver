@@ -41,7 +41,7 @@ mMove (Cube (back, top, left, front, right, bottom)) =
 -- Function to rotate the entire cube clockwise
 rotateClockwise :: Cube -> Cube
 rotateClockwise (Cube (back, top, left, front, right, bottom)) =
-    Cube (rotateSideCC back, rotateSideC left, rotateSideC bottom, rotateSideC front, rotateSideC top, rotateSideCC right)
+    Cube (rotateSideCC back, rotateSideC left, rotateSideC bottom, rotateSideC front, rotateSideC top, rotateSideC right)
 
 -- Function to check if a side is one color
 isOneColor :: Side -> Bool
