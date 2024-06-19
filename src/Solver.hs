@@ -62,3 +62,24 @@ solvedCube = Cube (
     Side (4,4,4,4,4,4,4,4,4),
     Side (5,5,5,5,5,5,5,5,5)
     )
+
+-- Current cube state, remaining depth, accumulated moves, and a solution
+findMoves :: Cube -> Int -> [String] -> [String]
+findMoves cube 0 moves 
+    | isSolved cube = moves
+    | otherwise = []
+findMoves cube depth moves
+    | isSolved cube = moves
+    | otherwise = 
+        let r = findMoves (rMove cube) (depth - 1) (moves ++ ["R"])
+            m = findMoves (mMove cube) (depth - 1) (moves ++ ["M"])
+            c = findMoves (rotateClockwise cube) (depth - 1) (moves ++ ["RC"])
+        in if null r then if null m then c else m else r
+
+-- Current cube state, maximum depth, current depth, and a solution
+findSolutionIterative :: Cube -> Int -> Int -> [String]
+findSolutionIterative cube maxDepth depth
+    | depth > maxDepth = []
+    | otherwise = 
+        let moves = findMoves cube depth []
+        in if null moves then findSolutionIterative cube maxDepth (depth + 1) else moves
