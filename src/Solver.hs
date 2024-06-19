@@ -22,8 +22,3 @@ rotateClockwise (back, top, left, front, right, bottom) = (rotateSideCC back, ro
 
 isOneColor side = all (==head side) side 
 isSolved cube = all isOneColor cube
-
-{-
-tests:
-
--}
