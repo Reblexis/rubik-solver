@@ -12,7 +12,6 @@ and BACK,TOP,..,BOTTOM = (UL, UM, tr, ML, MM, MR, BL, BM, BB) if we rotate to it
 -- Define the Side and Cube types using records for clearer field access
 
 import Data.List (maximumBy)
-import Data.Ord (comparing, Down(Down))
 
 data Side = Side {
     tl :: Int, tm :: Int, tr :: Int,
@@ -134,10 +133,19 @@ Assigns score to the cube
 -}
 evaluate :: Cube -> Int
 evaluate c 
-    | isCrossFront c = 5+countTrues [tl (front c) == mm (front c) && bl (top c) == bm (top c) && tr(left c) == mr(left c), ml (top c) == mm (top c) && tm (left c) == mm(left c),
-                                tr (front c) == mm (front c) && br (top c) == bm (top c) && tl(right c) == ml(right c), mr (top c) == mm (top c) && tm (right c) == mm (right c)]
-    | otherwise = countTrues [all (== mm (front c)) [tm (front c), ml (front c), mr (front c), bm (front c)], bm (top c) == mm (top c) 
-    ,mr(left c) == mm (left c), tm (bottom c) == mm (bottom c), ml (right c) == mm (right c)]
+    | isCrossFront c = 
+        let tlCorner = tl (front c) == mm (front c) && bl (top c) == bm (top c) && tr(left c) == mr(left c)
+            trCorner = tr (front c) == mm (front c) && br (top c) == bm (top c) && tl(right c) == ml(right c)
+            blCorner = bl (front c) == mm (front c) && tl (bottom c) == tm (bottom c) && br(left c) == mr(left c)
+            brCorner = br (front c) == mm (front c) && tr (bottom c) == tm (bottom c) && bl(right c) == ml(right c)
+        in 5+countTrues [tlCorner, trCorner, blCorner, brCorner,
+                        tlCorner && ml (top c) == mm (top c) && tm (left c) == mm(left c),
+                        trCorner && mr (top c) == mm (top c) && tm (right c) == mm (right c),
+                        blCorner && bm (left c) == mm (left c) && ml (bottom c) == mm (bottom c),
+                        brCorner && bm (right c) == mm (right c) && mr (bottom c) == mm (bottom c)]
+
+    | otherwise = countTrues [tm (front c) == mm (front c) && bm (top c) == mm (top c), ml (front c) == mm (front c)&&mr(left c) == mm (left c),
+                        mr (front c) == mm(front c) && ml (right c) == mm (right c), bm (front c) == mm (front c) &&tm (bottom c) == mm (bottom c)]
 
 -- Check if a side is one color
 isOneColor :: Side -> Bool
