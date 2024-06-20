@@ -44,7 +44,7 @@ rotateSideCC side = rotateSideC $ rotateSideC $ rotateSideC side
 -- Function to modify the right column from another side's right column
 changeRightFrom :: Side -> Side -> Side
 changeRightFrom s1 s2 = Side {
-    tl = tl s1, tm = tm s1, tr = ur s2,
+    tl = tl s1, tm = tm s1, tr = tr s2,
     ml = ml s1, mm = mm s1, mr = mr s2,
     bl = bl s1, bm = bm s1, br = br s2
 }
@@ -63,7 +63,7 @@ rMove c = Cube {
 -- Modify the middle column from another side's middle column
 changeMiddleFrom :: Side -> Side -> Side
 changeMiddleFrom s1 s2 = Side {
-    tl = tl s1, tm = tm s2, tr = ur s1,
+    tl = tl s1, tm = tm s2, tr = tr s1,
     ml = ml s1, mm = mm s2, mr = mr s1,
     bl = bl s1, bm = bm s2, br = br s1
 }
@@ -127,14 +127,14 @@ boolToInt True = 1
 boolToInt False = 0
 
 countTrues :: [Bool] -> Int
-countTrues = stm . map boolToInt
+countTrues = sum . map boolToInt
 
-"""
+{-
 Assigns score to the cube
-"""
+-}
 evaluate :: Cube -> Int
 evaluate c 
-    | isCross c = 5+countTrues [tl (front c) == mm (front c) && bl (top c) == bm (top c) && tr(left c) == mr(left c), ml (top c) == mm (top c) && tm (left c) == mm(left c),
+    | isCrossFront c = 5+countTrues [tl (front c) == mm (front c) && bl (top c) == bm (top c) && tr(left c) == mr(left c), ml (top c) == mm (top c) && tm (left c) == mm(left c),
                                 tr (front c) == mm (front c) && br (top c) == bm (top c) && tl(right c) == ml(right c), mr (top c) == mm (top c) && tm (right c) == mm (right c)]
     | otherwise = countTrues [all (== mm (front c)) [tm (front c), ml (front c), mr (front c), bm (front c)], bm (top c) == mm (top c) 
     ,mr(left c) == mm (left c), tm (bottom c) == mm (bottom c), ml (right c) == mm (right c)]
@@ -159,22 +159,28 @@ solvedCube = Cube {
 }
 
 selectBest :: [([String], Int)] -> ([String], Int)
-selectBest = maximumBy (comparing snd) tuples
+selectBest states = maximumBy (comparing snd) states
 
 -- Current cube state, remaining depth, accumulated moves, and a solution
-findMoves :: Cube -> Int -> [String] -> ([String], Int)
+findMoves :: Cube -> Int -> Int -> [String] -> ([String], Int)
 findMoves cube depth limit moves
     | (depth == limit) = (moves, evaluate cube)
     | otherwise = 
             selectBest [(moves, evaluate cube),
-            findMoves (rMove cube) (depth - 1) (moves ++ ["R"])
-            ,findMoves (mMove cube) (depth - 1) (moves ++ ["M"])
-            ,findMoves (zRotation cube) (depth - 1) (moves ++ ["RC"])]
+            findMoves (rMove cube) (depth + 1) limit (moves ++ ["R"])
+            ,findMoves (mMove cube) (depth + 1) limit (moves ++ ["M"])
+            ,findMoves (zRotation cube) (depth + 1) limit (moves ++ ["RC"])]
+
+
+--solveUntilImprovement :: Cube -> 
 
 -- Current cube state, maximtm depth, current depth, and a solution
+{-
 findSolutionIterative :: Cube -> Int -> Int -> ([String], Int)
 findSolutionIterative cube maxDepth depth
-    | depth > maxDepth = ()
+    | depth > maxDepth = ([], -1)
     | otherwise = 
         let moves = findMoves cube depth []
         in if null moves then findSolutionIterative cube maxDepth (depth + 1) else moves
+
+-}
