@@ -179,13 +179,16 @@ findMoves cube depth limit moves
         selectBest [
             (moves, evaluate cube, depth, cube),
             findMoves (rMove cube) (depth + 1) limit (moves ++ ["R"]),
-            findMoves (mMove cube) (depth + 1) limit (moves ++ ["M"]),
-            findMoves (zRotation cube) (depth + 1) limit (moves ++ ["RC"])]
+            findMoves (lMove cube) (depth + 1) limit (moves ++ ["L"]),
+            findMoves (uMove cube) (depth + 1) limit (moves ++ ["U"]),
+            findMoves (dMove cube) (depth + 1) limit (moves ++ ["D"]),
+            findMoves (bMove cube) (depth + 1) limit (moves ++ ["B"]),
+            findMoves (fMove cube) (depth + 1) limit (moves ++ ["F"])]
 
 
 solveUntilImprovement :: Cube -> [String] -> Int -> (Int, [String])
 solveUntilImprovement cube moves lastScore = 
-    let (bestMoves, score, _, bestCube) = findMoves cube 0 13 moves
+    let (bestMoves, score, _, bestCube) = findMoves cube 0 6 moves
     in if score>lastScore then (solveUntilImprovement bestCube bestMoves score) else (score, moves)
 
 -- Current cube state, maximtm depth, current depth, and a solution
