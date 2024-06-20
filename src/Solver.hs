@@ -157,12 +157,11 @@ solvedCube = Cube {
     right = Side {tl = 4, tm = 4, tr = 4, ml = 4, mm = 4, mr = 4, bl = 4, bm = 4, br = 4},
     bottom = Side {tl = 5, tm = 5, tr = 5, ml = 5, mm = 5, mr = 5, bl = 5, bm = 5, br = 5}
 }
-
 selectBest :: [([String], Int, Int, Cube)] -> ([String], Int, Int, Cube)
 selectBest states = maximumBy compareStates states
   where
     compareStates (_, score1, depth1, _) (_, score2, depth2, _) =
-      compare score2 score1 <> compare depth1 depth2
+      compare score1 score2 <> compare depth2 depth1
 
 -- Current cube state, current depth, depth limit, accumulated moves, and a solution
 findMoves :: Cube -> Int -> Int -> [String] -> ([String], Int, Int, Cube)
