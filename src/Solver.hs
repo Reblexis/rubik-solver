@@ -12,7 +12,7 @@ and BACK,TOP,..,BOTTOM = (UL, UM, tr, ML, MM, MR, BL, BM, BB) if we rotate to it
 -- Define the Side and Cube types using records for clearer field access
 
 import Data.List (maximumBy)
-import Data.Ord (comparing)
+import Data.Ord (comparing, Down(Down))
 
 data Side = Side {
     tl :: Int, tm :: Int, tr :: Int,
@@ -158,21 +158,28 @@ solvedCube = Cube {
     bottom = Side {tl = 5, tm = 5, tr = 5, ml = 5, mm = 5, mr = 5, bl = 5, bm = 5, br = 5}
 }
 
-selectBest :: [([String], Int)] -> ([String], Int)
-selectBest states = maximumBy (comparing snd) states
+selectBest :: [([String], Int, Int, Cube)] -> ([String], Int, Int, Cube)
+selectBest states = maximumBy compareStates states
+  where
+    compareStates (_, score1, depth1, _) (_, score2, depth2, _) =
+      compare score2 score1 <> compare depth1 depth2
 
--- Current cube state, remaining depth, accumulated moves, and a solution
-findMoves :: Cube -> Int -> Int -> [String] -> ([String], Int)
+-- Current cube state, current depth, depth limit, accumulated moves, and a solution
+findMoves :: Cube -> Int -> Int -> [String] -> ([String], Int, Int, Cube)
 findMoves cube depth limit moves
-    | (depth == limit) = (moves, evaluate cube)
+    | depth == limit = (moves, evaluate cube, depth, cube)
     | otherwise = 
-            selectBest [(moves, evaluate cube),
-            findMoves (rMove cube) (depth + 1) limit (moves ++ ["R"])
-            ,findMoves (mMove cube) (depth + 1) limit (moves ++ ["M"])
-            ,findMoves (zRotation cube) (depth + 1) limit (moves ++ ["RC"])]
+        selectBest [
+            (moves, evaluate cube, depth, cube),
+            findMoves (rMove cube) (depth + 1) limit (moves ++ ["R"]),
+            findMoves (mMove cube) (depth + 1) limit (moves ++ ["M"]),
+            findMoves (zRotation cube) (depth + 1) limit (moves ++ ["RC"])]
 
 
---solveUntilImprovement :: Cube -> 
+solveUntilImprovement :: Cube -> [String] -> Int -> (Int, [String])
+solveUntilImprovement cube moves lastScore = 
+    let (bestMoves, score, _, bestCube) = findMoves cube 0 13 moves
+    in if score>lastScore then (solveUntilImprovement bestCube bestMoves score) else (score, moves)
 
 -- Current cube state, maximtm depth, current depth, and a solution
 {-
