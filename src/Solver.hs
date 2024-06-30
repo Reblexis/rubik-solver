@@ -128,6 +128,17 @@ boolToInt False = 0
 countTrues :: [Bool] -> Int
 countTrues = sum . map boolToInt
 
+countEntropy :: vector<Float> -> Double
+countEntropy counts = -(foldl counts (addLogProb) 0)
+
+normalize :: vector<Int> -> vector<Double>
+normalize counts = map (*(1/(foldl counts + 0))) counts
+
+countColors ::Side -> vector<Int>
+countColors side = foldl side (addToList) (vector<int> 6 0) 
+
+
+
 {-
 Assigns score to the cube
 -}
