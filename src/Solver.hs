@@ -12,8 +12,10 @@ and BACK,TOP,..,BOTTOM = (UL, UM, tr, ML, MM, MR, BL, BM, BB) if we rotate to it
 -- Define the Side and Cube types using records for clearer field access
 
 import Data.List (maximumBy)
-import Data.Vector
-import qualified Data.Vector.Mutable
+import qualified Data.Vector as V
+import qualified Data.Vector.Mutable as MV
+import Data.Monoid
+import Data.Foldable
 
 data Side = Side {
     tl :: Int, tm :: Int, tr :: Int,
@@ -21,21 +23,8 @@ data Side = Side {
     bl :: Int, bm :: Int, br :: Int
 } deriving Show
 
--- Making Side an instance of Foldable
-instance Foldable Side where
-    foldMap f (Side tl tm tr ml mm mr bl bm br) =
-        f tl `mappend`
-        f tm `mappend`
-        f tr `mappend`
-        f ml `mappend`
-        f mm `mappend`
-        f mr `mappend`
-        f bl `mappend`
-        f bm `mappend`
-        f br
-
-    foldr f z (Side tl tm tr ml mm mr bl bm br) =
-        f tl (f tm (f tr (f ml (f mm (f mr (f bl (f bm (f br z))))))))
+toListSide :: Side -> [Int]
+toListSide (Side tl tm tr ml mm mr bl bm br) = [tl, tm, tr, ml, mm, mr, bl, bm, br]
 
 data Cube = Cube {
     back :: Side,
@@ -46,19 +35,8 @@ data Cube = Cube {
     bottom :: Side
 } deriving Show
 
--- Making Cube an instance of Foldable
-instance Foldable Cube where
-    foldMap f (Cube back top left front right bottom) =
-        f back `mappend`
-        f top `mappend`
-        f left `mappend`
-        f front `mappend`
-        f right `mappend`
-        f bottom
-
-    foldr f z (Cube back top left front right bottom) =
-        f back (f top (f left (f front (f right (f bottom z)))))
-
+toListCube :: Cube -> [Side]
+toListCube (Cube back top left front right bottom) = [back, top, left, front, right, bottom]
 
 -- Function to rotate a Side clockwise
 rotateSideC :: Side -> Side
@@ -167,15 +145,15 @@ countSameColor:: Cube -> Int
 countSameColor cube = countSameColorSide (back cube) + countSameColorSide (top cube) + countSameColorSide (left cube) + countSameColorSide (front cube) + countSameColorSide (right cube) + countSameColorSide (bottom cube)
 
 {-
-Add 1 to the element at index x in the list
+Add 1 to the element at index x in the vector
 -}
-addToList :: Vector Int -> Int -> Vector Int
-addToList v x = v // [(x, v ! x + 1)]
+addToList :: V.Vector Int -> Int -> V.Vector Int
+addToList v x = v V.// [(x, v V.! x + 1)]
 
-countColors ::Side -> Vector Int
-countColors side = foldl (addToList) (Vector.replicate 6 0) side
+countColors ::Side -> V.Vector Int
+countColors side = foldl (addToList) (V.replicate 6 0) (toListSide side)
 
-normalize :: Vector Int -> Vector Double
+normalize :: V.Vector Int -> V.Vector Double
 normalize counts = V.map(/ totalSum) vecDouble
     where
         totalSum = fromIntegral (V.sum counts) :: Double
@@ -184,14 +162,14 @@ normalize counts = V.map(/ totalSum) vecDouble
 addLogProb :: Double -> Double -> Double
 addLogProb acc x = acc + x * log x
 
-countEntropy :: Vector Double -> Double
-countEntropy counts = (foldl counts (addLogProb) 0)
+countEntropy :: V.Vector Double -> Double
+countEntropy counts = (foldl (addLogProb) 0 counts)
 
 countSideEntropy :: Side -> Double
 countSideEntropy side = countEntropy (normalize (countColors side))
 
 countCubeEntropy :: Cube -> Double
-countCubeEntropy cube = sum (V.map countSideEntropy cube)
+countCubeEntropy cube = sum (map countSideEntropy (toListCube cube))
 
 {-
 Assigns score to the cube
