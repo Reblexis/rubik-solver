@@ -11,11 +11,9 @@ and BACK,TOP,..,BOTTOM = (UL, UM, tr, ML, MM, MR, BL, BM, BB) if we rotate to it
 -- Define the Side and Cube types
 -- Define the Side and Cube types using records for clearer field access
 
-import Data.List (maximumBy)
 import qualified Data.Vector as V
-import qualified Data.Vector.Mutable as MV
-import Data.Monoid
 import Data.Foldable
+import Debug.Trace (trace, traceShow)
 
 data Side = Side {
     tl :: Int, tm :: Int, tr :: Int,
@@ -24,7 +22,7 @@ data Side = Side {
 } deriving Show
 
 toListSide :: Side -> [Int]
-toListSide (Side tl tm tr ml mm mr bl bm br) = [tl, tm, tr, ml, mm, mr, bl, bm, br]
+toListSide (Side tl_ tm_ tr_ ml_ mm_ mr_ bl_ bm_ br_) = [tl_, tm_, tr_, ml_, mm_, mr_, bl_, bm_, br_]
 
 data Cube = Cube {
     back :: Side,
@@ -36,7 +34,7 @@ data Cube = Cube {
 } deriving Show
 
 toListCube :: Cube -> [Side]
-toListCube (Cube back top left front right bottom) = [back, top, left, front, right, bottom]
+toListCube (Cube back_ top_ left_ front_ right_ bottom_) = [back_, top_, left_, front_, right_, bottom_]
 
 -- Function to rotate a Side clockwise
 rotateSideC :: Side -> Side
@@ -160,7 +158,9 @@ normalize counts = V.map(/ totalSum) vecDouble
         vecDouble = V.map fromIntegral counts
 
 addLogProb :: Double -> Double -> Double
-addLogProb acc x = acc + x * log x
+addLogProb acc x 
+    | x == 0 = acc
+    | otherwise = acc + x * log x
 
 countEntropy :: V.Vector Double -> Double
 countEntropy counts = (foldl (addLogProb) 0 counts)
@@ -176,9 +176,7 @@ Assigns score to the cube
 -}
 evaluate :: Cube -> Double
 evaluate c 
-    | isCrossFront c = 5.0 + countCubeEntropy c
-    | otherwise = fromIntegral(countTrues [tm (front c) == mm (front c) && bm (top c) == mm (top c), ml (front c) == mm (front c)&&mr(left c) == mm (left c),
-                        mr (front c) == mm(front c) && ml (right c) == mm (right c), bm (front c) == mm (front c) &&tm (bottom c) == mm (bottom c)])
+    | otherwise = -countCubeEntropy c
 
 evaluateMore:: Cube -> Double
 evaluateMore c = max (evaluate c) (evaluate (xRotation c))
@@ -211,7 +209,7 @@ selectBest states = maximumBy compareStates states
 -- Current cube state, current depth, depth limit, accumulated moves, and a solution
 findMoves :: Cube -> Int -> Int -> [String] -> ([String], Double, Int, Cube)
 findMoves cube depth limit moves
-    | depth == limit = (moves, evaluateMore cube, depth, cube)
+    | depth == limit = (moves, evaluate cube, depth, cube)
     | otherwise = 
         selectBest [
             (moves, evaluateMore cube, depth, cube),
@@ -228,7 +226,10 @@ solveUntilImprovement cube moves lastScore =
     let (bestMoves, score, _, bestCube) = findMoves cube 0 6 moves
     in if score>lastScore then (solveUntilImprovement bestCube bestMoves score) else (score, moves)
 
--- Current cube state, maximtm depth, current depth, and a solution
+
+-- Basic test example: solveUntilImprovement (rMove$rMove$rMove solvedCube) [] 0
+
+-- Current cube state, maximum depth, current depth, and a solution
 {-
 findSolutionIterative :: Cube -> Int -> Int -> ([String], Int)
 findSolutionIterative cube maxDepth depth
