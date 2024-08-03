@@ -128,6 +128,12 @@ boolToInt False = 0
 countTrues :: [Bool] -> Int
 countTrues = sum . map boolToInt
 
+countSameColorSide :: Side -> Int
+countSameColorSide side = countTrues [tl side == mm side, tm side == mm side, tr side == mm side, ml side == mm side, mr side == mm side, bl side == mm side, bm side == mm side, br side == mm side]
+
+countSameColor:: Cube -> Int
+countSameColor cube = countSameColorSide (back cube) + countSameColorSide (top cube) + countSameColorSide (left cube) + countSameColorSide (front cube) + countSameColorSide (right cube) + countSameColorSide (bottom cube)
+
 {-
 Assigns score to the cube
 -}
@@ -142,11 +148,13 @@ evaluate c
                         tlCorner && ml (top c) == mm (top c) && tm (left c) == mm(left c),
                         trCorner && mr (top c) == mm (top c) && tm (right c) == mm (right c),
                         blCorner && bm (left c) == mm (left c) && ml (bottom c) == mm (bottom c),
-                        brCorner && bm (right c) == mm (right c) && mr (bottom c) == mm (bottom c)]
+                        brCorner && bm (right c) == mm (right c) && mr (bottom c) == mm (bottom c)] + countSameColor c
 
     | otherwise = countTrues [tm (front c) == mm (front c) && bm (top c) == mm (top c), ml (front c) == mm (front c)&&mr(left c) == mm (left c),
                         mr (front c) == mm(front c) && ml (right c) == mm (right c), bm (front c) == mm (front c) &&tm (bottom c) == mm (bottom c)]
 
+evaluateMore:: Cube -> Int
+evaluateMore c = max (evaluate c) (evaluate (xRotation c))
 -- Check if a side is one color
 isOneColor :: Side -> Bool
 isOneColor s = all (== tl s) [tm s, tr s, ml s, mm s, mr s, bl s, bm s, br s]
@@ -174,16 +182,18 @@ selectBest states = maximumBy compareStates states
 -- Current cube state, current depth, depth limit, accumulated moves, and a solution
 findMoves :: Cube -> Int -> Int -> [String] -> ([String], Int, Int, Cube)
 findMoves cube depth limit moves
-    | depth == limit = (moves, evaluate cube, depth, cube)
+    | depth == limit = (moves, evaluateMore cube, depth, cube)
     | otherwise = 
         selectBest [
-            (moves, evaluate cube, depth, cube),
+            (moves, evaluateMore cube, depth, cube),
             findMoves (rMove cube) (depth + 1) limit (moves ++ ["R"]),
-            findMoves (lMove cube) (depth + 1) limit (moves ++ ["L"]),
+            findMoves (zRotation cube) (depth + 1) limit (moves ++ ["L"]),
             findMoves (uMove cube) (depth + 1) limit (moves ++ ["U"]),
             findMoves (dMove cube) (depth + 1) limit (moves ++ ["D"]),
             findMoves (bMove cube) (depth + 1) limit (moves ++ ["B"]),
             findMoves (fMove cube) (depth + 1) limit (moves ++ ["F"])]
+
+
 
 
 solveUntilImprovement :: Cube -> [String] -> Int -> (Int, [String])
