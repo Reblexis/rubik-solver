@@ -14,6 +14,7 @@ and BACK,TOP,..,BOTTOM = (UL, UM, tr, ML, MM, MR, BL, BM, BB) if we rotate to it
 import qualified Data.Vector as V
 import Data.Foldable
 import Debug.Trace (trace, traceShow)
+import System.CPUTime
 
 data Side = Side {
     tl :: Int, tm :: Int, tr :: Int,
@@ -213,44 +214,60 @@ solvedCube = Cube {
     bottom = Side {tl = 5, tm = 5, tr = 5, ml = 5, mm = 5, mr = 5, bl = 5, bm = 5, br = 5}
 }
 
+negativeInfinity :: Double
+negativeInfinity = -1.0 / 0
+
 selectBest :: [([String], Double, Int, Cube)] -> ([String], Double, Int, Cube)
 selectBest states = maximumBy compareStates states
   where
     compareStates (_, score1, depth1, _) (_, score2, depth2, _) =
       compare score1 score2 <> compare depth2 depth1
 
--- Current cube state, current depth, depth limit, accumulated moves, and a solution
-findMoves :: Cube -> Int -> Int -> [String] -> ([String], Double, Int, Cube)
-findMoves cube depth limit moves
-    | depth == limit = (moves, evaluateMore cube, depth, cube)
-    | otherwise = 
-        selectBest [
-            (moves, evaluateMore cube, depth, cube),
-            findMoves (rMove cube) (depth + 1) limit (moves ++ ["R"]),
-            findMoves (lMove cube) (depth + 1) limit (moves ++ ["L"]),
-            findMoves (uMove cube) (depth + 1) limit (moves ++ ["U"]),
-            findMoves (dMove cube) (depth + 1) limit (moves ++ ["D"]),
-            findMoves (bMove cube) (depth + 1) limit (moves ++ ["B"]),
-            findMoves (fMove cube) (depth + 1) limit (moves ++ ["F"]),
-            findMoves (prime rMove cube) (depth + 1) limit (moves ++ ["R'"]),
-            findMoves (prime lMove cube) (depth + 1) limit (moves ++ ["L'"]),
-            findMoves (prime uMove cube) (depth + 1) limit (moves ++ ["U'"]),
-            findMoves (prime dMove cube) (depth + 1) limit (moves ++ ["D'"]),
-            findMoves (prime bMove cube) (depth + 1) limit (moves ++ ["B'"]),
-            findMoves (prime fMove cube) (depth + 1) limit (moves ++ ["F'"]),
-            findMoves (rMove(rMove cube)) (depth + 1) limit (moves ++ ["R2"]),
-            findMoves (lMove(lMove cube)) (depth + 1) limit (moves ++ ["L2"]),
-            findMoves (uMove(uMove cube)) (depth + 1) limit (moves ++ ["U2"]),
-            findMoves (dMove(dMove cube)) (depth + 1) limit (moves ++ ["D2"]),
-            findMoves (bMove(bMove cube)) (depth + 1) limit (moves ++ ["B2"]),
-            findMoves (fMove(fMove cube)) (depth + 1) limit (moves ++ ["F2"])
-        ]
+findMoves :: Cube -> Int -> Int -> [String] -> Integer -> IO ([String], Double, Int, Cube)
+findMoves cube depth limit moves endTime = do
+    currentTime <- getCPUTime
+    if currentTime >= endTime
+        then return (moves, negativeInfinity, depth, cube)
+        else do
+            let currentEval = (moves, evaluateMore cube, depth, cube)
+            moveResults <- sequence [
+                return currentEval,
+                findMoves (rMove cube) (depth + 1) limit (moves ++ ["R"]) endTime,
+                findMoves (lMove cube) (depth + 1) limit (moves ++ ["L"]) endTime,
+                findMoves (uMove cube) (depth + 1) limit (moves ++ ["U"]) endTime,
+                findMoves (dMove cube) (depth + 1) limit (moves ++ ["D"]) endTime,
+                findMoves (bMove cube) (depth + 1) limit (moves ++ ["B"]) endTime,
+                findMoves (fMove cube) (depth + 1) limit (moves ++ ["F"]) endTime,
+                findMoves (prime rMove cube) (depth + 1) limit (moves ++ ["R'"]) endTime,
+                findMoves (prime lMove cube) (depth + 1) limit (moves ++ ["L'"]) endTime,
+                findMoves (prime uMove cube) (depth + 1) limit (moves ++ ["U'"]) endTime,
+                findMoves (prime dMove cube) (depth + 1) limit (moves ++ ["D'"]) endTime,
+                findMoves (prime bMove cube) (depth + 1) limit (moves ++ ["B'"]) endTime,
+                findMoves (prime fMove cube) (depth + 1) limit (moves ++ ["F'"]) endTime,
+                findMoves (rMove (rMove cube)) (depth + 1) limit (moves ++ ["R2"]) endTime,
+                findMoves (lMove (lMove cube)) (depth + 1) limit (moves ++ ["L2"]) endTime,
+                findMoves (uMove (uMove cube)) (depth + 1) limit (moves ++ ["U2"]) endTime,
+                findMoves (dMove (dMove cube)) (depth + 1) limit (moves ++ ["D2"]) endTime,
+                findMoves (bMove (bMove cube)) (depth + 1) limit (moves ++ ["B2"]) endTime,
+                findMoves (fMove (fMove cube)) (depth + 1) limit (moves ++ ["F2"]) endTime]
+            let bestEval = selectBest moveResults
+            return bestEval
+
+solveUntilImprovement :: Cube -> [String] -> Double -> Integer -> IO (Double, [String])
+solveUntilImprovement cube moves lastScore endTime = 
+    do 
+        (bestMoves, score, _, _) <- findMoves cube 0 4 moves endTime
+        currentTime <- getCPUTime
+        if score <= lastScore || currentTime >= endTime
+            then return (lastScore, moves)
+            else solveUntilImprovement cube bestMoves score endTime
 
 
-solveUntilImprovement :: Cube -> [String] -> Double -> (Double, [String])
-solveUntilImprovement cube moves lastScore = 
-    let (bestMoves, score, _, bestCube) = findMoves cube 0 4 moves
-    in if score>lastScore then (solveUntilImprovement bestCube bestMoves score) else (score, moves)
+
+findSolution :: Cube -> Integer -> IO (Double, [String])
+findSolution cube timeLimit = do
+    startTime <- getCPUTime
+    solveUntilImprovement cube [] (negativeInfinity) (startTime + (timeLimit*(10^(9::Integer))))
 
 
 -- Basic test example: solveUntilImprovement (rMove$rMove$rMove solvedCube) [] 0
