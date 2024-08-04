@@ -1,5 +1,6 @@
 import subprocess
 
+
 # Path to the compiled Haskell executable
 executable_path = './dist-newstyle/build/x86_64-linux/ghc-8.10.4/myproject-0.1.0.0/x/myproject/build/myproject/myproject'
 

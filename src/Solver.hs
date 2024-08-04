@@ -231,12 +231,25 @@ findMoves cube depth limit moves
             findMoves (uMove cube) (depth + 1) limit (moves ++ ["U"]),
             findMoves (dMove cube) (depth + 1) limit (moves ++ ["D"]),
             findMoves (bMove cube) (depth + 1) limit (moves ++ ["B"]),
-            findMoves (fMove cube) (depth + 1) limit (moves ++ ["F"])]
+            findMoves (fMove cube) (depth + 1) limit (moves ++ ["F"]),
+            findMoves (prime rMove cube) (depth + 1) limit (moves ++ ["R'"]),
+            findMoves (prime lMove cube) (depth + 1) limit (moves ++ ["L'"]),
+            findMoves (prime uMove cube) (depth + 1) limit (moves ++ ["U'"]),
+            findMoves (prime dMove cube) (depth + 1) limit (moves ++ ["D'"]),
+            findMoves (prime bMove cube) (depth + 1) limit (moves ++ ["B'"]),
+            findMoves (prime fMove cube) (depth + 1) limit (moves ++ ["F'"]),
+            findMoves (rMove(rMove cube)) (depth + 1) limit (moves ++ ["R2"]),
+            findMoves (lMove(lMove cube)) (depth + 1) limit (moves ++ ["L2"]),
+            findMoves (uMove(uMove cube)) (depth + 1) limit (moves ++ ["U2"]),
+            findMoves (dMove(dMove cube)) (depth + 1) limit (moves ++ ["D2"]),
+            findMoves (bMove(bMove cube)) (depth + 1) limit (moves ++ ["B2"]),
+            findMoves (fMove(fMove cube)) (depth + 1) limit (moves ++ ["F2"])
+        ]
 
 
 solveUntilImprovement :: Cube -> [String] -> Double -> (Double, [String])
 solveUntilImprovement cube moves lastScore = 
-    let (bestMoves, score, _, bestCube) = findMoves cube 0 5 moves
+    let (bestMoves, score, _, bestCube) = findMoves cube 0 4 moves
     in if score>lastScore then (solveUntilImprovement bestCube bestMoves score) else (score, moves)
 
 
