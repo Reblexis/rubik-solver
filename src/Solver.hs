@@ -14,7 +14,8 @@ and BACK,TOP,..,BOTTOM = (UL, UM, tr, ML, MM, MR, BL, BM, BB) if we rotate to it
 import qualified Data.Vector as V
 import Data.Foldable
 import Debug.Trace (trace, traceShow)
-import System.CPUTime
+import qualified System.Clock as Clock
+import Data.IORef
 
 data Side = Side {
     tl :: Int, tm :: Int, tr :: Int,
@@ -223,51 +224,66 @@ selectBest states = maximumBy compareStates states
     compareStates (_, score1, depth1, _) (_, score2, depth2, _) =
       compare score1 score2 <> compare depth2 depth1
 
-findMoves :: Cube -> Int -> Int -> [String] -> Integer -> IO ([String], Double, Int, Cube)
+findMoves :: Cube -> Int -> Int -> [String] -> Clock.TimeSpec -> IO ([String], Double, Int, Cube)
 findMoves cube depth limit moves endTime = do
-    currentTime <- getCPUTime
-    if currentTime >= endTime
-        then return (moves, negativeInfinity, depth, cube)
+    currentTime <- Clock.getTime Clock.Monotonic
+    putStrLn $ "Depth: " ++ show depth ++ " Time: " ++ show (Clock.diffTimeSpec currentTime endTime)
+    if currentTime >= endTime || depth >= limit
+        then do 
+            putStrLn $ "Time difference: " ++ show (Clock.diffTimeSpec currentTime endTime)
+            return (moves, negativeInfinity, depth, cube)
         else do
             let currentEval = (moves, evaluateMore cube, depth, cube)
             moveResults <- sequence [
                 return currentEval,
-                findMoves (rMove cube) (depth + 1) limit (moves ++ ["R"]) endTime,
-                findMoves (lMove cube) (depth + 1) limit (moves ++ ["L"]) endTime,
-                findMoves (uMove cube) (depth + 1) limit (moves ++ ["U"]) endTime,
-                findMoves (dMove cube) (depth + 1) limit (moves ++ ["D"]) endTime,
-                findMoves (bMove cube) (depth + 1) limit (moves ++ ["B"]) endTime,
-                findMoves (fMove cube) (depth + 1) limit (moves ++ ["F"]) endTime,
-                findMoves (prime rMove cube) (depth + 1) limit (moves ++ ["R'"]) endTime,
-                findMoves (prime lMove cube) (depth + 1) limit (moves ++ ["L'"]) endTime,
-                findMoves (prime uMove cube) (depth + 1) limit (moves ++ ["U'"]) endTime,
-                findMoves (prime dMove cube) (depth + 1) limit (moves ++ ["D'"]) endTime,
-                findMoves (prime bMove cube) (depth + 1) limit (moves ++ ["B'"]) endTime,
-                findMoves (prime fMove cube) (depth + 1) limit (moves ++ ["F'"]) endTime,
-                findMoves (rMove (rMove cube)) (depth + 1) limit (moves ++ ["R2"]) endTime,
-                findMoves (lMove (lMove cube)) (depth + 1) limit (moves ++ ["L2"]) endTime,
-                findMoves (uMove (uMove cube)) (depth + 1) limit (moves ++ ["U2"]) endTime,
-                findMoves (dMove (dMove cube)) (depth + 1) limit (moves ++ ["D2"]) endTime,
-                findMoves (bMove (bMove cube)) (depth + 1) limit (moves ++ ["B2"]) endTime,
-                findMoves (fMove (fMove cube)) (depth + 1) limit (moves ++ ["F2"]) endTime]
+                checkAndRunMove (rMove cube) (moves ++ ["R"]),
+                checkAndRunMove (lMove cube) (moves ++ ["L"]),
+                checkAndRunMove (uMove cube) (moves ++ ["U"]),
+                checkAndRunMove (dMove cube) (moves ++ ["D"]),
+                checkAndRunMove (bMove cube) (moves ++ ["B"]),
+                checkAndRunMove (fMove cube) (moves ++ ["F"]),
+                checkAndRunMove (prime rMove cube) (moves ++ ["R'"]),
+                checkAndRunMove (prime lMove cube) (moves ++ ["L'"]),
+                checkAndRunMove (prime uMove cube) (moves ++ ["U'"]),
+                checkAndRunMove (prime dMove cube) (moves ++ ["D'"]),
+                checkAndRunMove (prime bMove cube) (moves ++ ["B'"]),
+                checkAndRunMove (prime fMove cube) (moves ++ ["F'"]),
+                checkAndRunMove (rMove (rMove cube)) (moves ++ ["R2"]),
+                checkAndRunMove (lMove (lMove cube)) (moves ++ ["L2"]),
+                checkAndRunMove (uMove (uMove cube)) (moves ++ ["U2"]),
+                checkAndRunMove (dMove (dMove cube)) (moves ++ ["D2"]),
+                checkAndRunMove (bMove (bMove cube)) (moves ++ ["B2"]),
+                checkAndRunMove (fMove (fMove cube)) (moves ++ ["F2"])]
             let bestEval = selectBest moveResults
+            currentTime_ <- Clock.getTime Clock.Monotonic
+            putStrLn $ "Time difference (end): " ++ show (Clock.diffTimeSpec currentTime_ endTime)
             return bestEval
+  where
+    checkAndRunMove :: Cube -> [String] -> IO ([String], Double, Int, Cube)
+    checkAndRunMove newCube newMoves = do
+        currentTime <- Clock.getTime Clock.Monotonic
+        if currentTime >= endTime
+            then return (moves, negativeInfinity, depth, cube)
+            else findMoves newCube (depth + 1) limit newMoves endTime
 
-solveUntilImprovement :: Cube -> [String] -> Double -> Integer -> IO (Double, [String])
+solveUntilImprovement :: Cube -> [String] -> Double -> Clock.TimeSpec -> IO (Double, [String], Clock.TimeSpec)
 solveUntilImprovement cube moves lastScore endTime = 
     do 
         (bestMoves, score, _, _) <- findMoves cube 0 4 moves endTime
-        currentTime <- getCPUTime
+        currentTime <- Clock.getTime Clock.Monotonic
+        putStrLn $ "Time difference: " ++ show (Clock.diffTimeSpec currentTime endTime)
         if score <= lastScore || currentTime >= endTime
-            then return (lastScore, moves)
+            then return (lastScore, moves, Clock.diffTimeSpec currentTime endTime)
             else solveUntilImprovement cube bestMoves score endTime
 
+addNanoSecs :: Clock.TimeSpec -> Integer -> Clock.TimeSpec
+addNanoSecs (Clock.TimeSpec s ns) nsecs = Clock.TimeSpec s (ns + (fromIntegral nsecs))
 
-
-findSolution :: Cube -> Integer -> IO (Double, [String])
+findSolution :: Cube -> Integer -> IO (Double, [String], Clock.TimeSpec)
 findSolution cube timeLimit = do
-    startTime <- getCPUTime
-    solveUntilImprovement cube [] (negativeInfinity) (startTime + (timeLimit*(10^(9::Integer))))
+    startTime <- Clock.getTime Clock.Monotonic
+    let endTime = addNanoSecs startTime (timeLimit * (10^(6::Integer)))
+    solveUntilImprovement cube [] (negativeInfinity) endTime
 
 
 -- Basic test example: solveUntilImprovement (rMove$rMove$rMove solvedCube) [] 0
