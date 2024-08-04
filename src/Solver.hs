@@ -176,7 +176,20 @@ Assigns score to the cube
 -}
 evaluate :: Cube -> Double
 evaluate c 
-    | otherwise = -countCubeEntropy c
+    | isCrossFront c = 
+        let tlCorner = tl (front c) == mm (front c) && bl (top c) == bm (top c) && tr(left c) == mr(left c)
+            trCorner = tr (front c) == mm (front c) && br (top c) == bm (top c) && tl(right c) == ml(right c)
+            blCorner = bl (front c) == mm (front c) && tl (bottom c) == tm (bottom c) && br(left c) == mr(left c)
+            brCorner = br (front c) == mm (front c) && tr (bottom c) == tm (bottom c) && bl(right c) == ml(right c)
+        in 5.0+fromIntegral (countTrues [tlCorner, trCorner, blCorner, brCorner,
+                        tlCorner && ml (top c) == mm (top c) && tm (left c) == mm(left c),
+                        trCorner && mr (top c) == mm (top c) && tm (right c) == mm (right c),
+                        blCorner && bm (left c) == mm (left c) && ml (bottom c) == mm (bottom c),
+                        brCorner && bm (right c) == mm (right c) && mr (bottom c) == mm (bottom c)] + countSameColor c) + countCubeEntropy c
+
+    | otherwise = fromIntegral(countTrues [tm (front c) == mm (front c) && bm (top c) == mm (top c), ml (front c) == mm (front c)&&mr(left c) == mm (left c),
+                        mr (front c) == mm(front c) && ml (right c) == mm (right c), bm (front c) == mm (front c) &&tm (bottom c) == mm (bottom c)]) + countCubeEntropy c
+
 
 evaluateMore:: Cube -> Double
 evaluateMore c = max (evaluate c) (evaluate (xRotation c))
@@ -209,12 +222,12 @@ selectBest states = maximumBy compareStates states
 -- Current cube state, current depth, depth limit, accumulated moves, and a solution
 findMoves :: Cube -> Int -> Int -> [String] -> ([String], Double, Int, Cube)
 findMoves cube depth limit moves
-    | depth == limit = (moves, evaluate cube, depth, cube)
+    | depth == limit = (moves, evaluateMore cube, depth, cube)
     | otherwise = 
         selectBest [
             (moves, evaluateMore cube, depth, cube),
             findMoves (rMove cube) (depth + 1) limit (moves ++ ["R"]),
-            findMoves (zRotation cube) (depth + 1) limit (moves ++ ["L"]),
+            findMoves (lMove cube) (depth + 1) limit (moves ++ ["L"]),
             findMoves (uMove cube) (depth + 1) limit (moves ++ ["U"]),
             findMoves (dMove cube) (depth + 1) limit (moves ++ ["D"]),
             findMoves (bMove cube) (depth + 1) limit (moves ++ ["B"]),
@@ -223,7 +236,7 @@ findMoves cube depth limit moves
 
 solveUntilImprovement :: Cube -> [String] -> Double -> (Double, [String])
 solveUntilImprovement cube moves lastScore = 
-    let (bestMoves, score, _, bestCube) = findMoves cube 0 6 moves
+    let (bestMoves, score, _, bestCube) = findMoves cube 0 5 moves
     in if score>lastScore then (solveUntilImprovement bestCube bestMoves score) else (score, moves)
 
 
