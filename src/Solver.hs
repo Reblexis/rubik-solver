@@ -228,50 +228,56 @@ findMoves :: Cube -> Int -> Int -> [String] -> Clock.TimeSpec -> IO ([String], D
 findMoves cube depth limit moves endTime = do
     currentTime <- Clock.getTime Clock.Monotonic
     putStrLn $ "Depth: " ++ show depth ++ " Time: " ++ show (Clock.diffTimeSpec currentTime endTime)
-    if currentTime >= endTime || depth >= limit
-        then do 
-            putStrLn $ "Time difference: " ++ show (Clock.diffTimeSpec currentTime endTime)
+    
+    if currentTime >= endTime 
+        then do
             return (moves, negativeInfinity, depth, cube)
         else do
-            let currentEval = (moves, evaluateMore cube, depth, cube)
-            moveResults <- sequence [
-                return currentEval,
-                checkAndRunMove (rMove cube) (moves ++ ["R"]),
-                checkAndRunMove (lMove cube) (moves ++ ["L"]),
-                checkAndRunMove (uMove cube) (moves ++ ["U"]),
-                checkAndRunMove (dMove cube) (moves ++ ["D"]),
-                checkAndRunMove (bMove cube) (moves ++ ["B"]),
-                checkAndRunMove (fMove cube) (moves ++ ["F"]),
-                checkAndRunMove (prime rMove cube) (moves ++ ["R'"]),
-                checkAndRunMove (prime lMove cube) (moves ++ ["L'"]),
-                checkAndRunMove (prime uMove cube) (moves ++ ["U'"]),
-                checkAndRunMove (prime dMove cube) (moves ++ ["D'"]),
-                checkAndRunMove (prime bMove cube) (moves ++ ["B'"]),
-                checkAndRunMove (prime fMove cube) (moves ++ ["F'"]),
-                checkAndRunMove (rMove (rMove cube)) (moves ++ ["R2"]),
-                checkAndRunMove (lMove (lMove cube)) (moves ++ ["L2"]),
-                checkAndRunMove (uMove (uMove cube)) (moves ++ ["U2"]),
-                checkAndRunMove (dMove (dMove cube)) (moves ++ ["D2"]),
-                checkAndRunMove (bMove (bMove cube)) (moves ++ ["B2"]),
-                checkAndRunMove (fMove (fMove cube)) (moves ++ ["F2"])]
-            let bestEval = selectBest moveResults
-            currentTime_ <- Clock.getTime Clock.Monotonic
-            putStrLn $ "Time difference (end): " ++ show (Clock.diffTimeSpec currentTime_ endTime)
-            return bestEval
+            if depth >= limit
+                then do
+                    return (moves, evaluateMore cube, depth, cube)
+                else do
+                -- Generate list of possible moves with corresponding labels
+                let moveOptions = [
+                        (rMove, "R"),
+                        (lMove, "L"),
+                        (uMove, "U"),
+                        (dMove, "D"),
+                        (bMove, "B"),
+                        (fMove, "F"),
+                        (prime rMove, "R'"),
+                        (prime lMove, "L'"),
+                        (prime uMove, "U'"),
+                        (prime dMove, "D'"),
+                        (prime bMove, "B'"),
+                        (prime fMove, "F'"),
+                        (\c -> rMove (rMove c), "R2"),
+                        (\c -> lMove (lMove c), "L2"),
+                        (\c -> uMove (uMove c), "U2"),
+                        (\c -> dMove (dMove c), "D2"),
+                        (\c -> bMove (bMove c), "B2"),
+                        (\c -> fMove (fMove c), "F2")]
+                results <- mapM (checkAndRunMove cube moves currentTime) moveOptions
+                let bestEval = selectBest results
+                return bestEval
   where
-    checkAndRunMove :: Cube -> [String] -> IO ([String], Double, Int, Cube)
-    checkAndRunMove newCube newMoves = do
+    checkAndRunMove :: Cube -> [String] -> Clock.TimeSpec -> (Cube -> Cube, String) -> IO ([String], Double, Int, Cube)
+    checkAndRunMove currentCube currentMoves startTime (moveFunc, moveNotation) = do
         currentTime <- Clock.getTime Clock.Monotonic
         if currentTime >= endTime
-            then return (moves, negativeInfinity, depth, cube)
-            else findMoves newCube (depth + 1) limit newMoves endTime
+            then do
+                return (currentMoves, negativeInfinity, depth, currentCube)
+            else do
+                let newCube = moveFunc currentCube
+                let newMoves = currentMoves ++ [moveNotation]
+                findMoves newCube (depth + 1) limit newMoves endTime
 
 solveUntilImprovement :: Cube -> [String] -> Double -> Clock.TimeSpec -> IO (Double, [String], Clock.TimeSpec)
 solveUntilImprovement cube moves lastScore endTime = 
     do 
         (bestMoves, score, _, _) <- findMoves cube 0 4 moves endTime
         currentTime <- Clock.getTime Clock.Monotonic
-        putStrLn $ "Time difference: " ++ show (Clock.diffTimeSpec currentTime endTime)
+        putStrLn $ "Final delay: " ++ show (Clock.diffTimeSpec currentTime endTime)
         if score <= lastScore || currentTime >= endTime
             then return (lastScore, moves, Clock.diffTimeSpec currentTime endTime)
             else solveUntilImprovement cube bestMoves score endTime
