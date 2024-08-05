@@ -224,10 +224,11 @@ selectBest states = maximumBy compareStates states
     compareStates (_, score1, depth1, _) (_, score2, depth2, _) =
       compare score1 score2 <> compare depth2 depth1
 
+{-# LANGUAGE BangPatterns #-}
 findMoves :: Cube -> Int -> Int -> [String] -> Clock.TimeSpec -> IO ([String], Double, Int, Cube)
 findMoves cube depth limit moves endTime = do
     currentTime <- Clock.getTime Clock.Monotonic
-    putStrLn $ "Depth: " ++ show depth ++ " Time: " ++ show (Clock.diffTimeSpec currentTime endTime)
+    --putStrLn $ "Depth: " ++ show depth ++ " Time: " ++ show (Clock.diffTimeSpec currentTime endTime)
     
     if currentTime >= endTime 
         then do
@@ -258,12 +259,14 @@ findMoves cube depth limit moves endTime = do
                         (\c -> bMove (bMove c), "B2"),
                         (\c -> fMove (fMove c), "F2")]
                 results <- mapM (checkAndRunMove cube moves currentTime) moveOptions
-                let bestEval = selectBest results
+                let !bestEval = selectBest results
+                --putStrLn $ "Time: " ++ show (Clock.diffTimeSpec currentTime endTime)
                 return bestEval
   where
     checkAndRunMove :: Cube -> [String] -> Clock.TimeSpec -> (Cube -> Cube, String) -> IO ([String], Double, Int, Cube)
     checkAndRunMove currentCube currentMoves startTime (moveFunc, moveNotation) = do
         currentTime <- Clock.getTime Clock.Monotonic
+        --putStrLn $ "Move: " ++ moveNotation ++ " Time: " ++ show (Clock.diffTimeSpec currentTime endTime)
         if currentTime >= endTime
             then do
                 return (currentMoves, negativeInfinity, depth, currentCube)
