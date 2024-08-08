@@ -1,9 +1,12 @@
 import subprocess
 import os
 import ast
+import random
+import time
 
 def run_rubik_solver(moves, algorithm):
     # Step 1: Build the project
+
     build_process = subprocess.run(['cabal', 'build'], capture_output=True, text=True)
     
     if build_process.returncode != 0:
@@ -12,44 +15,71 @@ def run_rubik_solver(moves, algorithm):
         print("stderr:", build_process.stderr)
         return build_process.returncode
 
-    # Replace placeholders with actual values
-    ghc_version = "8.8.4" # Change this to match your GHC version
+    ghc_version = "8.8.4" 
     package_name = "rubik-solver"
-    package_version = "0.1.0.0" # Change this to match your package version
+    package_version = "0.1.0.0" 
     executable_name = "rubik-solver"
 
     executable_path = f'dist-newstyle/build/x86_64-linux/ghc-{ghc_version}/{package_name}-{package_version}/x/{executable_name}/build/{executable_name}/{executable_name}'
 
-    # Step 3: Construct the argument list
     args = [moves, algorithm]
 
-    # Step 4: Run the executable with the arguments
+    start_time = time.time()
     run_process = subprocess.run(
         [executable_path] + args,
         capture_output=True,
         text=True
     )
+    duration = time.time() - start_time
 
     if run_process.returncode != 0:
         exception = f"Failed to run the executable, return code: {run_process.returncode}, stderr: {run_process.stderr}, stdout: {run_process.stdout}"
         raise Exception(exception)
 
-    # Print the output
     stdout = run_process.stdout
     solution, score = stdout.split("\n")[:2]
     print(solution.strip())
     solution = ast.literal_eval(solution.split(": ")[1])
     score = float(score.split(": ")[1])
     
-    print(f"Solution: {solution}")
-    print(f"Score: {score}")
-
-    # Return the process return code
-
-    return solution, score
+    return solution, score, duration
 
 
-SHUFFLE_MOVES = ["R", "L", "U", "D", "F", "B", "R'", "L'", "U'", "D'", "F'", "B'"]
+def generate_shuffle(num_moves=20):
+    POSSIBLE_SHUFFLE_MOVES = ["R", "L", "U", "D", "F", "B", "R'", "L'", "U'", "D'", "F'", "B'"]
+
+    shuffle = " ".join(random.choices(POSSIBLE_SHUFFLE_MOVES, k=num_moves))
+
+    return shuffle
+
+
+def test_algorithm(algorithm, num_tests=100, num_moves=30):
+    scores = []
+    solution_lengths = []
+    durations = []
+
+    for i in range(num_tests):
+        shuffle = generate_shuffle(num_moves=num_moves)
+        print(f"Test {i + 1}/{num_tests}")
+        solution, score, duration = run_rubik_solver(shuffle, algorithm)
+        print(f"solution: {solution}, score: {score}, duration: {duration}")
+        scores.append(score)
+        solution_lengths.append(len(solution))
+        durations.append(duration)
+
+
+    avg_score = sum(scores) / len(scores)
+    avg_solution_length = sum(solution_lengths) / len(solution_lengths)
+    avg_duration = sum(durations) / len(durations)
+
+    print(f"Average score: {avg_score}")
+    print(f"Average solution length: {avg_solution_length}")
+    print(f"Average duration: {avg_duration}")
+
+    return avg_score, avg_solution_length, avg_duration
+
+
 
 # Example usage
-return_code = run_rubik_solver("R L U B", "baseline")
+
+test_algorithm("baseline", num_tests=100, num_moves=30)

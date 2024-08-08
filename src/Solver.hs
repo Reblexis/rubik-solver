@@ -110,12 +110,13 @@ findMoves cube depth limit moves endTime = do
 solveUntilImprovement :: Cube -> [String] -> Double -> Clock.TimeSpec -> IO (Double, [String], Clock.TimeSpec)
 solveUntilImprovement cube moves lastScore endTime = 
     do 
-        (bestMoves, score, _, _) <- findMoves cube 0 2 moves endTime
+        (bestMoves, score, _, newCube) <- findMoves cube 0 2 moves endTime
         currentTime <- Clock.getTime Clock.Monotonic
         -- putStrLn $ "Final delay: " ++ show (Clock.diffTimeSpec currentTime endTime)
         if score <= lastScore || currentTime >= endTime
-            then return (lastScore, moves, Clock.diffTimeSpec currentTime endTime)
-            else solveUntilImprovement cube bestMoves score endTime
+            then do
+                return (lastScore, moves, Clock.diffTimeSpec currentTime endTime)
+            else solveUntilImprovement newCube bestMoves score endTime
 
 addNanoSecs :: Clock.TimeSpec -> Integer -> Clock.TimeSpec
 addNanoSecs (Clock.TimeSpec s ns) nsecs = Clock.TimeSpec s (ns + (fromIntegral nsecs))
