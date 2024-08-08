@@ -9,6 +9,10 @@ and BACK,TOP,..,BOTTOM = (UL, UM, tr, ML, MM, MR, BL, BM, BB) if we rotate to it
     IMPORTANT: CURRENTLY THE MIDDLE MOVE IS REVERSED (COMPARED TO STANDARD)
 -}
 
+module Cube where
+
+import qualified Data.Vector as V
+
 data Side = Side {
     tl :: Int, tm :: Int, tr :: Int,
     ml :: Int, mm :: Int, mr :: Int,

@@ -1,11 +1,12 @@
 
--- Define the Side and Cube types
--- Define the Side and Cube types using records for clearer field access
+module Solver where
 
 import qualified Data.Vector as V
 import Data.Foldable
 import qualified System.Clock as Clock
 import Data.IORef
+
+import Cube
 
 
 -- Check if there is cross in the middle matching middle points of the other sides
@@ -91,13 +92,13 @@ findMoves cube depth limit moves endTime = do
                         (\c -> fMove (fMove c), "F2")]
                 results <- mapM (checkAndRunMove cube moves currentTime) moveOptions
                 let !bestEval = selectBest results
-                --putStrLn $ "Time: " ++ show (Clock.diffTimeSpec currentTime endTime)
+                -- putStrLn $ "Time: " ++ show (Clock.diffTimeSpec currentTime endTime)
                 return bestEval
   where
     checkAndRunMove :: Cube -> [String] -> Clock.TimeSpec -> (Cube -> Cube, String) -> IO ([String], Double, Int, Cube)
     checkAndRunMove currentCube currentMoves startTime (moveFunc, moveNotation) = do
         currentTime <- Clock.getTime Clock.Monotonic
-        --putStrLn $ "Move: " ++ moveNotation ++ " Time: " ++ show (Clock.diffTimeSpec currentTime endTime)
+        -- putStrLn $ "Move: " ++ moveNotation ++ " Time: " ++ show (Clock.diffTimeSpec currentTime endTime)
         if currentTime >= endTime
             then do
                 return (currentMoves, negativeInfinity, depth, currentCube)
@@ -111,7 +112,7 @@ solveUntilImprovement cube moves lastScore endTime =
     do 
         (bestMoves, score, _, _) <- findMoves cube 0 2 moves endTime
         currentTime <- Clock.getTime Clock.Monotonic
-        putStrLn $ "Final delay: " ++ show (Clock.diffTimeSpec currentTime endTime)
+        -- putStrLn $ "Final delay: " ++ show (Clock.diffTimeSpec currentTime endTime)
         if score <= lastScore || currentTime >= endTime
             then return (lastScore, moves, Clock.diffTimeSpec currentTime endTime)
             else solveUntilImprovement cube bestMoves score endTime

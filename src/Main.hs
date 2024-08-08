@@ -2,7 +2,7 @@ module Main where
 
 import System.Environment (getArgs)
 
-import Cube (Cube, getCubeFromMoves, applyMoves, evaluate)
+import Cube (getCubeFromMoves, applyMoves, evaluate)
 import Solver (baselineSolution)
 
 
@@ -24,7 +24,7 @@ main = do
             let moves = words shuffle  -- Split the shuffle into separate moves
             let cube = getCubeFromMoves moves
 
-            let solution = 
+            solution <-
                     case algorithm of
                         "baseline" -> baselineSolution cube 1000000
                         _ -> return []
