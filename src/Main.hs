@@ -26,7 +26,7 @@ main = do
 
             solution <-
                     case algorithm of
-                        "baseline" -> baselineSolution cube 1000
+                        "baseline" -> baselineSolution cube 15000
                         _ -> return []
             
             let finalCube = applyMoves cube solution

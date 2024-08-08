@@ -38,7 +38,6 @@ def run_rubik_solver(moves, algorithm):
 
     stdout = run_process.stdout
     solution, score = stdout.split("\n")[:2]
-    print(solution.strip())
     solution = ast.literal_eval(solution.split(": ")[1])
     score = float(score.split(": ")[1])
     
@@ -57,11 +56,14 @@ def test_algorithm(algorithm, num_tests=100, num_moves=30):
     scores = []
     solution_lengths = []
     durations = []
+    
+    best_solution = (None, float("inf"))
 
     for i in range(num_tests):
         shuffle = generate_shuffle(num_moves=num_moves)
         print(f"Test {i + 1}/{num_tests}")
         solution, score, duration = run_rubik_solver(shuffle, algorithm)
+        best_solution = max(best_solution, (solution, score), key=lambda x: x[1])
         print(f"solution: {solution}, score: {score}, duration: {duration}")
         scores.append(score)
         solution_lengths.append(len(solution))
@@ -75,6 +77,7 @@ def test_algorithm(algorithm, num_tests=100, num_moves=30):
     print(f"Average score: {avg_score}")
     print(f"Average solution length: {avg_solution_length}")
     print(f"Average duration: {avg_duration}")
+    print(f"Best solution: {best_solution[0]}, score: {best_solution[1]}")
 
     return avg_score, avg_solution_length, avg_duration
 

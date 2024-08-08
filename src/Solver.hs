@@ -32,20 +32,7 @@ Assigns score to the cube
 -}
 evaluate1 :: Cube -> Double
 evaluate1 c 
-    | isCrossFront c = 
-        let tlCorner = tl (front c) == mm (front c) && bl (top c) == bm (top c) && tr(left c) == mr(left c)
-            trCorner = tr (front c) == mm (front c) && br (top c) == bm (top c) && tl(right c) == ml(right c)
-            blCorner = bl (front c) == mm (front c) && tl (bottom c) == tm (bottom c) && br(left c) == mr(left c)
-            brCorner = br (front c) == mm (front c) && tr (bottom c) == tm (bottom c) && bl(right c) == ml(right c)
-        in 5.0+fromIntegral (countTrues [tlCorner, trCorner, blCorner, brCorner,
-                        tlCorner && ml (top c) == mm (top c) && tm (left c) == mm(left c),
-                        trCorner && mr (top c) == mm (top c) && tm (right c) == mm (right c),
-                        blCorner && bm (left c) == mm (left c) && ml (bottom c) == mm (bottom c),
-                        brCorner && bm (right c) == mm (right c) && mr (bottom c) == mm (bottom c)] + countSameColor c) + countCubeEntropy c
-
-    | otherwise = fromIntegral(countTrues [tm (front c) == mm (front c) && bm (top c) == mm (top c), ml (front c) == mm (front c)&&mr(left c) == mm (left c),
-                        mr (front c) == mm(front c) && ml (right c) == mm (right c), bm (front c) == mm (front c) &&tm (bottom c) == mm (bottom c)]) + countCubeEntropy c
-
+    | otherwise = countCubeEntropy c
 
 negativeInfinity :: Double
 negativeInfinity = -1.0 / 0
@@ -91,7 +78,8 @@ findMoves cube depth limit moves endTime = do
                         (\c -> bMove (bMove c), "B2"),
                         (\c -> fMove (fMove c), "F2")]
                 results <- mapM (checkAndRunMove cube moves currentTime) moveOptions
-                let !bestEval = selectBest results
+                
+                let !bestEval = selectBest (results ++ [(moves, evaluate1 cube, depth, cube)])
                 -- putStrLn $ "Time: " ++ show (Clock.diffTimeSpec currentTime endTime)
                 return bestEval
   where
@@ -110,7 +98,7 @@ findMoves cube depth limit moves endTime = do
 solveUntilImprovement :: Cube -> [String] -> Double -> Clock.TimeSpec -> IO (Double, [String], Clock.TimeSpec)
 solveUntilImprovement cube moves lastScore endTime = 
     do 
-        (bestMoves, score, _, newCube) <- findMoves cube 0 2 moves endTime
+        (bestMoves, score, _, newCube) <- findMoves cube 0 4 moves endTime
         currentTime <- Clock.getTime Clock.Monotonic
         -- putStrLn $ "Final delay: " ++ show (Clock.diffTimeSpec currentTime endTime)
         if score <= lastScore || currentTime >= endTime

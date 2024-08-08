@@ -154,6 +154,12 @@ applyMove c move
     | move == "D'" = prime dMove c
     | move == "B'" = prime bMove c
     | move == "F'" = prime fMove c
+    | move == "R2" = rMove $ rMove c
+    | move == "L2" = lMove $ lMove c
+    | move == "U2" = uMove $ uMove c
+    | move == "D2" = dMove $ dMove c
+    | move == "B2" = bMove $ bMove c
+    | move == "F2" = fMove $ fMove c
     | otherwise = c
 
 applyMoves :: Cube -> [String] -> Cube
