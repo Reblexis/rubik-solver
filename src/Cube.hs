@@ -154,8 +154,6 @@ applyMove c move
     | move == "D'" = prime dMove c
     | move == "B'" = prime bMove c
     | move == "F'" = prime fMove c
-    | move == "M" = mMove c
-    | move == "M'" = prime mMove c
     | otherwise = c
 
 applyMoves :: Cube -> [String] -> Cube
