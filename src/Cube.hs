@@ -12,6 +12,7 @@ and BACK,TOP,..,BOTTOM = (UL, UM, tr, ML, MM, MR, BL, BM, BB) if we rotate to it
 module Cube where
 
 import qualified Data.Vector as V
+import System.Random
 
 data Side = Side {
     tl :: Int, tm :: Int, tr :: Int,
@@ -140,27 +141,43 @@ solvedCube = Cube {
     bottom = Side {tl = 5, tm = 5, tr = 5, ml = 5, mm = 5, mr = 5, bl = 5, bm = 5, br = 5}
 }
 
+data Move = Move { 
+    move :: Cube -> Cube,
+    name :: String
+}
+
+possibleMoves :: [Move]
+possibleMoves = [
+    Move {move = rMove, name = "R"},
+    Move {move = lMove, name = "L"},
+    Move {move = uMove, name = "U"},
+    Move {move = dMove, name = "D"},
+    Move {move = bMove, name = "B"},
+    Move {move = fMove, name = "F"},
+    Move {move = (prime rMove), name = "R'"},
+    Move {move = (prime lMove), name = "L'"},
+    Move {move = (prime uMove), name = "U'"},
+    Move {move = (prime dMove), name = "D'"},
+    Move {move = (prime bMove), name = "B'"},
+    Move {move = (prime fMove), name = "F'"},
+    Move {move = (rMove . rMove), name = "R2"},
+    Move {move = (lMove . lMove), name = "L2"},
+    Move {move = (uMove . uMove), name = "U2"},
+    Move {move = (dMove . dMove), name = "D2"},
+    Move {move = (bMove . bMove), name = "B2"},
+    Move {move = (fMove . fMove), name = "F2"}]
+
 applyMove :: Cube -> String -> Cube
-applyMove c move
-    | move == "R" = rMove c
-    | move == "L" = lMove c
-    | move == "U" = uMove c
-    | move == "D" = dMove c
-    | move == "B" = bMove c
-    | move == "F" = fMove c
-    | move == "R'" = prime rMove c
-    | move == "L'" = prime lMove c
-    | move == "U'" = prime uMove c
-    | move == "D'" = prime dMove c
-    | move == "B'" = prime bMove c
-    | move == "F'" = prime fMove c
-    | move == "R2" = rMove $ rMove c
-    | move == "L2" = lMove $ lMove c
-    | move == "U2" = uMove $ uMove c
-    | move == "D2" = dMove $ dMove c
-    | move == "B2" = bMove $ bMove c
-    | move == "F2" = fMove $ fMove c
-    | otherwise = c
+applyMove c moveName = moveFunction c
+    where
+        moveFunction = move $ head $ filter (\m -> name m == moveName) possibleMoves
+
+
+getRandomMove :: IO Move
+getRandomMove = do
+    index <- randomRIO (0, length possibleMoves - 1)
+    return $ possibleMoves !! index
+
 
 applyMoves :: Cube -> [String] -> Cube
 applyMoves c moves = foldl applyMove c moves
