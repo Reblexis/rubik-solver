@@ -27,39 +27,10 @@ countSameColor:: Cube -> Int
 countSameColor cube = countSameColorSide (back cube) + countSameColorSide (top cube) + countSameColorSide (left cube) + countSameColorSide (front cube) + countSameColorSide (right cube) + countSameColorSide (bottom cube)
 
 {-
-Add 1 to the element at index x in the vector
--}
-addToList :: V.Vector Int -> Int -> V.Vector Int
-addToList v x = v V.// [(x, v V.! x + 1)]
-
-countColors ::Side -> V.Vector Int
-countColors side = foldl (addToList) (V.replicate 6 0) (toListSide side)
-
-normalize :: V.Vector Int -> V.Vector Double
-normalize counts = V.map(/ totalSum) vecDouble
-    where
-        totalSum = fromIntegral (V.sum counts) :: Double
-        vecDouble = V.map fromIntegral counts
-
-addLogProb :: Double -> Double -> Double
-addLogProb acc x 
-    | x == 0 = acc
-    | otherwise = acc + x * log x
-
-countEntropy :: V.Vector Double -> Double
-countEntropy counts = (foldl (addLogProb) 0 counts)
-
-countSideEntropy :: Side -> Double
-countSideEntropy side = countEntropy (normalize (countColors side))
-
-countCubeEntropy :: Cube -> Double
-countCubeEntropy cube = sum (map countSideEntropy (toListCube cube))
-
-{-
 Assigns score to the cube
 -}
-evaluate :: Cube -> Double
-evaluate c 
+evaluate1 :: Cube -> Double
+evaluate1 c 
     | isCrossFront c = 
         let tlCorner = tl (front c) == mm (front c) && bl (top c) == bm (top c) && tr(left c) == mr(left c)
             trCorner = tr (front c) == mm (front c) && br (top c) == bm (top c) && tl(right c) == ml(right c)
@@ -74,9 +45,6 @@ evaluate c
     | otherwise = fromIntegral(countTrues [tm (front c) == mm (front c) && bm (top c) == mm (top c), ml (front c) == mm (front c)&&mr(left c) == mm (left c),
                         mr (front c) == mm(front c) && ml (right c) == mm (right c), bm (front c) == mm (front c) &&tm (bottom c) == mm (bottom c)]) + countCubeEntropy c
 
-
-evaluateMore:: Cube -> Double
-evaluateMore c = max (evaluate c) (evaluate (xRotation c))
 
 negativeInfinity :: Double
 negativeInfinity = -1.0 / 0
@@ -99,7 +67,7 @@ findMoves cube depth limit moves endTime = do
         else do
             if depth >= limit
                 then do
-                    return (moves, evaluateMore cube, depth, cube)
+                    return (moves, evaluate1 cube, depth, cube)
                 else do
                 -- Generate list of possible moves with corresponding labels
                 let moveOptions = [
@@ -151,11 +119,12 @@ solveUntilImprovement cube moves lastScore endTime =
 addNanoSecs :: Clock.TimeSpec -> Integer -> Clock.TimeSpec
 addNanoSecs (Clock.TimeSpec s ns) nsecs = Clock.TimeSpec s (ns + (fromIntegral nsecs))
 
-baselineSolution :: Cube -> Integer -> IO (Double, [String], Clock.TimeSpec)
+baselineSolution :: Cube -> Integer -> IO ([String])
 baselineSolution cube timeLimit = do
     startTime <- Clock.getTime Clock.Monotonic
     let endTime = addNanoSecs startTime (timeLimit * (10^(6::Integer)))
-    solveUntilImprovement cube [] (negativeInfinity) endTime
+    (_, moves, _) <- solveUntilImprovement cube [] (evaluate1 cube) endTime
+    return moves
 
 
 -- Basic test example: solveUntilImprovement (rMove$rMove$rMove solvedCube) [] 0

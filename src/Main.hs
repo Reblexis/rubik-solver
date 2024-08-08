@@ -2,7 +2,7 @@ module Main where
 
 import System.Environment (getArgs)
 
-import Cube (Cube)
+import Cube (Cube, getCubeFromMoves, applyMoves, evaluate)
 import Solver (baselineSolution)
 
 
@@ -22,10 +22,19 @@ main = do
     case args of
         [shuffle, algorithm] -> do
             let moves = words shuffle  -- Split the shuffle into separate moves
+            let cube = getCubeFromMoves moves
 
-            case algorithm of
-                "baseline" -> baselineSolution moves
-                _ -> putStrLn $ "Unsupported algorithm: " ++ algorithm
+            let solution = 
+                    case algorithm of
+                        "baseline" -> baselineSolution cube 1000000
+                        _ -> return []
+            
+            let finalCube = applyMoves cube solution
+            let score = evaluate finalCube
+
+            putStrLn $ "Solution: " ++ show solution
+            putStrLn $ "Achieved score: " ++ show score
+            
         _ -> putStrLn "Usage: cabal run \"MOVE1 MOVE2 MOVE3 ..\" algorithm"
 
 

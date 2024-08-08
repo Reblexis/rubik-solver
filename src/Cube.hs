@@ -136,3 +136,58 @@ solvedCube = Cube {
     bottom = Side {tl = 5, tm = 5, tr = 5, ml = 5, mm = 5, mr = 5, bl = 5, bm = 5, br = 5}
 }
 
+applyMove :: Cube -> String -> Cube
+applyMove c move
+    | move == "R" = rMove c
+    | move == "L" = lMove c
+    | move == "U" = uMove c
+    | move == "D" = dMove c
+    | move == "B" = bMove c
+    | move == "F" = fMove c
+    | move == "R'" = prime rMove c
+    | move == "L'" = prime lMove c
+    | move == "U'" = prime uMove c
+    | move == "D'" = prime dMove c
+    | move == "B'" = prime bMove c
+    | move == "F'" = prime fMove c
+    | move == "M" = mMove c
+    | move == "M'" = prime mMove c
+    | otherwise = c
+
+applyMoves :: Cube -> [String] -> Cube
+applyMoves c moves = foldl applyMove c moves
+
+getCubeFromMoves :: [String] -> Cube
+getCubeFromMoves moves = applyMoves solvedCube moves
+
+{-
+Add 1 to the element at index x in the vector
+-}
+addToList :: V.Vector Int -> Int -> V.Vector Int
+addToList v x = v V.// [(x, v V.! x + 1)]
+
+countColors ::Side -> V.Vector Int
+countColors side = foldl (addToList) (V.replicate 6 0) (toListSide side)
+
+normalize :: V.Vector Int -> V.Vector Double
+normalize counts = V.map(/ totalSum) vecDouble
+    where
+        totalSum = fromIntegral (V.sum counts) :: Double
+        vecDouble = V.map fromIntegral counts
+
+addLogProb :: Double -> Double -> Double
+addLogProb acc x 
+    | x == 0 = acc
+    | otherwise = acc + x * log x
+
+countEntropy :: V.Vector Double -> Double
+countEntropy counts = (foldl (addLogProb) 0 counts)
+
+countSideEntropy :: Side -> Double
+countSideEntropy side = countEntropy (normalize (countColors side))
+
+countCubeEntropy :: Cube -> Double
+countCubeEntropy cube = sum (map countSideEntropy (toListCube cube))
+
+evaluate :: Cube -> Double
+evaluate c = countCubeEntropy c
