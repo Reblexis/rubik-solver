@@ -62,7 +62,7 @@ def test_algorithm(algorithm, num_tests=100, num_moves=30):
     solution_lengths = []
     durations = []
     
-    best_solution = (None, float("inf"))
+    best_solution = (None, float("-inf"))
 
     for i in range(num_tests):
         shuffle = generate_shuffle(num_moves=num_moves)
