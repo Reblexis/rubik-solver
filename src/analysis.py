@@ -4,17 +4,20 @@ import ast
 import random
 import time
 
-def run_rubik_solver(moves, algorithm):
-    # Step 1: Build the project
 
+def build_rubik_solver():
     build_process = subprocess.run(['cabal', 'build'], capture_output=True, text=True)
-    
+
     if build_process.returncode != 0:
         print("Failed to build the project")
         print("stdout:", build_process.stdout)
         print("stderr:", build_process.stderr)
         return build_process.returncode
 
+
+def run_rubik_solver(moves, algorithm):
+    # Step 1: Build the project
+    
     ghc_version = "8.8.4" 
     package_name = "rubik-solver"
     package_version = "0.1.0.0" 
@@ -53,6 +56,8 @@ def generate_shuffle(num_moves=20):
 
 
 def test_algorithm(algorithm, num_tests=100, num_moves=30):
+    build_rubik_solver()
+
     scores = []
     solution_lengths = []
     durations = []

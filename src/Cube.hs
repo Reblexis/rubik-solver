@@ -146,6 +146,9 @@ data Move = Move {
     name :: String
 }
 
+movesSameEdge :: String -> String -> Bool
+movesSameEdge m1 m2 = (head m1) == (head m2)
+
 possibleMoves :: [Move]
 possibleMoves = [
     Move {move = rMove, name = "R"},
