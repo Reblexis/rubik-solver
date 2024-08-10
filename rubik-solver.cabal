@@ -68,7 +68,7 @@ executable rubik-solver
     -- other-extensions:
 
     -- Other library packages from which modules are imported.
-    build-depends:    base, vector, clock, random
+    build-depends:    base, vector, clock, random, array
     other-modules:    Solver, CubeColors, CubeCubies
 
     -- Directories containing source files.
