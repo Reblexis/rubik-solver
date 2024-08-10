@@ -17,7 +17,7 @@ data Cubie = Cubie {
     rotation :: Int -- 0 - 2 (could be two bits)
 } deriving Show
 
-data Cube = Cube {
+newtype Cube = Cube {
     cubies :: V.Vector Cubie
 } deriving Show
 
@@ -35,7 +35,7 @@ data CubieMove = CubieMove {
     rotationAdd :: Int
 }
 
-data Move = Move {
+newtype Move = Move {
     cubieMoves :: V.Vector CubieMove
 }
 
