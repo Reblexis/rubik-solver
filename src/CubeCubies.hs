@@ -143,3 +143,8 @@ b2 :: Move
 b2 = cubieFromColorMove (CubeColors.bMove . CubeColors.bMove)
 f2 :: Move
 f2 = cubieFromColorMove (CubeColors.fMove . CubeColors.fMove)
+
+
+-- Cubies that are at the same position as their index and their rotation is 0
+countCorrectCubies :: Cube -> Int
+countCorrectCubies (Cube cubies) = length $ filter (\(cubie, index) -> position cubie == index && rotation cubie == 0) (zip cubies [0..19])
