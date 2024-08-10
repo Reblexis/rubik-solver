@@ -38,6 +38,7 @@ toListCube (Cube back_ top_ left_ front_ right_ bottom_) = [back_, top_, left_, 
 
 {-
 Front to back from top left row major order
+Each cubie colors are in this order: front, back, top, bottom, left, right
 -}
 getCubies :: Cube -> [[Color]]
 getCubies (Cube bk tp lt fr rt bt) = [
@@ -49,10 +50,10 @@ getCubies (Cube bk tp lt fr rt bt) = [
     [bl fr, tl bt, br lt],
     [bm fr, tm bt],
     [br fr, tr bt, bl rt],
-    [tm lt, ml tp],
-    [tm rt, mr tp],
-    [bm lt, ml bt],
-    [bm rt, mr bt],
+    [ml tp, tm lt],
+    [mr tp, tm rt],
+    [ml bt, bm lt],
+    [mr bt, bm rt],
     [bl bk, tl tp, tl lt],
     [bm bk, tm tp],
     [br bk, tr tp, tr rt],

@@ -77,14 +77,14 @@ findMoves cube depth limit moves endTime = do
                         (\c -> dMove (dMove c), "D2"),
                         (\c -> bMove (bMove c), "B2"),
                         (\c -> fMove (fMove c), "F2")]
-                results <- mapM (checkAndRunMove cube moves currentTime) moveOptions
+                results <- mapM (checkAndRunMove cube moves) moveOptions
                 
                 let !bestEval = selectBest  ((moves, evaluate1 cube, depth, cube) : results)
                 -- putStrLn $ "Time: " ++ show (Clock.diffTimeSpec currentTime endTime)
                 return bestEval
   where
-    checkAndRunMove :: Cube -> [String] -> Clock.TimeSpec -> (Cube -> Cube, String) -> IO ([String], Double, Int, Cube)
-    checkAndRunMove currentCube currentMoves startTime (moveFunc, moveNotation) = do
+    checkAndRunMove :: Cube -> [String] -> (Cube -> Cube, String) -> IO ([String], Double, Int, Cube)
+    checkAndRunMove currentCube currentMoves (moveFunc, moveNotation) = do
         currentTime <- Clock.getTime Clock.Monotonic
         -- putStrLn $ "Move: " ++ moveNotation ++ " Time: " ++ show (Clock.diffTimeSpec currentTime endTime)
         if currentTime >= endTime || ((length currentMoves) > 0 && (movesSameEdge (head currentMoves) moveNotation))
