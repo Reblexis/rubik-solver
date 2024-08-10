@@ -7,10 +7,10 @@ Cubie represantation of rubik's cube. The positions are id'd this way:
 -}
 module CubeCubies where
 
-import qualified Data.Vector as V
+import Data.List (elemIndex)
 
 import qualified CubeColors as CubeColors
-import CubeColors (Color)
+import CubeColors (Color(..), ColorCubie)
 
 data Cubie = Cubie {
     position :: Int,
@@ -18,12 +18,12 @@ data Cubie = Cubie {
 } deriving Show
 
 newtype Cube = Cube {
-    cubies :: V.Vector Cubie
+    cubies :: [Cubie]
 } deriving Show
 
 solvedCube :: Cube
 solvedCube = Cube {
-    cubies = V.fromList $ map (\x -> Cubie x 0) [0..19]
+    cubies = map (`Cubie` 0) [0..19]
 }
 
 {-
@@ -36,11 +36,38 @@ data CubieMove = CubieMove {
 }
 
 newtype Move = Move {
-    cubieMoves :: V.Vector CubieMove
+    cubieMoves :: [CubieMove]
 }
 
+defaultCubies :: [ColorCubie]
+defaultCubies =
+    let colors = [[White,Blue,Orange],[White,Blue],[White,Blue,Red],[White,Orange],[White,Red],
+                [White,Green,Orange],[White,Green],[White,Green,Red],[Blue,Orange],[Blue,Red],
+                [Green,Orange],[Green,Red],[Yellow,Blue,Orange],[Yellow,Blue],[Yellow,Blue,Red],
+                [Yellow,Orange],[Yellow,Red],[Yellow,Green,Orange],[Yellow,Green],[Yellow,Green,Red]]
+    in map CubeColors.ColorCubie colors
+
+-- Check the position change of the first element in the first list
+getRotationAdd :: ColorCubie -> ColorCubie -> Int
+getRotationAdd (CubeColors.ColorCubie c1) (CubeColors.ColorCubie c2) =
+    let
+        firstColor = head c1
+        firstColorIndex = elemIndex firstColor c2
+    in case firstColorIndex of
+        Just index -> index
+        Nothing -> error "Color not found"
+
+findCubie :: ColorCubie -> [ColorCubie] -> Cubie
+findCubie colorCubie allCubies =
+    let
+        cubieIndex = elemIndex colorCubie allCubies
+    in case cubieIndex of
+        Just index -> Cubie index (getRotationAdd colorCubie (allCubies !! index))
+        Nothing -> error "Cubie not found"
 
 
-
---cubieFromColor :: CubeColors.Cube -> Cube
---cubieFromColor colorCube = 
+cubieFromColor :: CubeColors.Cube -> Cube
+cubieFromColor colorCube =
+    let
+        colorCubies = CubeColors.getCubies colorCube
+    in Cube $ map (`findCubie` defaultCubies) colorCubies

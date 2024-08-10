@@ -10,15 +10,23 @@ and BACK,TOP,..,BOTTOM = (TP, TM, TR, ML, MM, MR, BL, BM, BB) if we rotate to it
 module CubeColors where
 
 import qualified Data.Vector as V
+import Data.List (sort)
 import System.Random
 
-data Color = Yellow | Blue | Orange | White | Red | Green deriving (Enum, Show, Eq)
+data Color = Yellow | Blue | Orange | White | Red | Green deriving (Enum, Show, Eq, Ord)
 
 data Side = Side {
     tl :: Color, tm :: Color, tr :: Color,
     ml :: Color, mm :: Color, mr :: Color,
     bl :: Color, bm :: Color, br :: Color
 } deriving Show
+
+newtype ColorCubie = ColorCubie [Color] deriving (Show)
+
+-- Check if they have the same colors
+instance Eq ColorCubie where
+    (ColorCubie c1) == (ColorCubie c2) = sort c1 == sort c2
+
 
 toListSide :: Side -> [Color]
 toListSide (Side tl_ tm_ tr_ ml_ mm_ mr_ bl_ bm_ br_) = [tl_, tm_, tr_, ml_, mm_, mr_, bl_, bm_, br_]
@@ -40,28 +48,31 @@ toListCube (Cube back_ top_ left_ front_ right_ bottom_) = [back_, top_, left_, 
 Front to back from top left row major order
 Each cubie colors are in this order: front, back, top, bottom, left, right
 -}
-getCubies :: Cube -> [[Color]]
-getCubies (Cube bk tp lt fr rt bt) = [
-    [tl fr, bl tp, tr lt],
-    [tm fr, bm tp],
-    [tr fr, br tp, tl rt],
-    [ml fr, ml lt],
-    [mr fr, mr rt],
-    [bl fr, tl bt, br lt],
-    [bm fr, tm bt],
-    [br fr, tr bt, bl rt],
-    [ml tp, tm lt],
-    [mr tp, tm rt],
-    [ml bt, bm lt],
-    [mr bt, bm rt],
-    [bl bk, tl tp, tl lt],
-    [bm bk, tm tp],
-    [br bk, tr tp, tr rt],
-    [ml bk, ml lt],
-    [mr bk, mr rt],
-    [tl bk, bl bt, bl lt],
-    [tm bk, bm bt],
-    [tr bk, br bt, br rt]]
+getCubies :: Cube -> [ColorCubie]
+getCubies (Cube bk tp lt fr rt bt) = 
+    let
+        cubieColors = [
+            [tl fr, bl tp, tr lt],
+            [tm fr, bm tp],
+            [tr fr, br tp, tl rt],
+            [ml fr, ml lt],
+            [mr fr, mr rt],
+            [bl fr, tl bt, br lt],
+            [bm fr, tm bt],
+            [br fr, tr bt, bl rt],
+            [ml tp, tm lt],
+            [mr tp, tm rt],
+            [ml bt, bm lt],
+            [mr bt, bm rt],
+            [bl bk, tl tp, tl lt],
+            [bm bk, tm tp],
+            [br bk, tr tp, tr rt],
+            [ml bk, ml lt],
+            [mr bk, mr rt],
+            [tl bk, bl bt, bl lt],
+            [tm bk, bm bt],
+            [tr bk, br bt, br rt]]
+    in map ColorCubie cubieColors
 
 
 -- Function to rotate a Side clockwise
