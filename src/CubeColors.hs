@@ -1,26 +1,26 @@
 {-
 Rubik's cube is represented in the following way:
 A tuple of tuples with fixed sizes, so data = (BACK, TOP, LEFT, FRONT, RIGHT, BOTTOM)
-and BACK,TOP,..,BOTTOM = (UL, UM, tr, ML, MM, MR, BL, BM, BB) if we rotate to it from the front
+and BACK,TOP,..,BOTTOM = (TP, TM, TR, ML, MM, MR, BL, BM, BB) if we rotate to it from the front
     side via the shortest path (and to the back side we rotate through top side).
-    And colors are represented as integers via the following mapping: Y,B,O,W,R,G = 0,1,2,3,4,5
-
 
     IMPORTANT: CURRENTLY THE MIDDLE MOVE IS REVERSED (COMPARED TO STANDARD)
 -}
 
-module Cube where
+module CubeColors where
 
 import qualified Data.Vector as V
 import System.Random
 
+data Color = Yellow | Blue | Orange | White | Red | Green deriving (Enum, Show, Eq)
+
 data Side = Side {
-    tl :: Int, tm :: Int, tr :: Int,
-    ml :: Int, mm :: Int, mr :: Int,
-    bl :: Int, bm :: Int, br :: Int
+    tl :: Color, tm :: Color, tr :: Color,
+    ml :: Color, mm :: Color, mr :: Color,
+    bl :: Color, bm :: Color, br :: Color
 } deriving Show
 
-toListSide :: Side -> [Int]
+toListSide :: Side -> [Color]
 toListSide (Side tl_ tm_ tr_ ml_ mm_ mr_ bl_ bm_ br_) = [tl_, tm_, tr_, ml_, mm_, mr_, bl_, bm_, br_]
 
 data Cube = Cube {
@@ -34,6 +34,34 @@ data Cube = Cube {
 
 toListCube :: Cube -> [Side]
 toListCube (Cube back_ top_ left_ front_ right_ bottom_) = [back_, top_, left_, front_, right_, bottom_]
+
+
+{-
+Front to back from top left row major order
+-}
+getCubies :: Cube -> [[Color]]
+getCubies (Cube bk tp lt fr rt bt) = [
+    [tl fr, bl tp, tr lt],
+    [tm fr, bm tp],
+    [tr fr, br tp, tl rt],
+    [ml fr, ml lt],
+    [mr fr, mr rt],
+    [bl fr, tl bt, br lt],
+    [bm fr, tm bt],
+    [br fr, tr bt, bl rt],
+    [tm lt, ml tp],
+    [tm rt, mr tp],
+    [bm lt, ml bt],
+    [bm rt, mr bt],
+    [bl bk, tl tp, tl lt],
+    [bm bk, tm tp],
+    [br bk, tr tp, tr rt],
+    [ml bk, ml lt],
+    [mr bk, mr rt],
+    [tl bk, bl bt, bl lt],
+    [tm bk, bm bt],
+    [tr bk, br bt, br rt]]
+
 
 -- Function to rotate a Side clockwise
 rotateSideC :: Side -> Side
@@ -130,15 +158,14 @@ isOneColor s = all (== tl s) [tm s, tr s, ml s, mm s, mr s, bl s, bm s, br s]
 isSolved :: Cube -> Bool
 isSolved c = all isOneColor [back c, top c, left c, front c, right c, bottom c]
 
--- A representation of a solved cube
 solvedCube :: Cube
 solvedCube = Cube {
-    back = Side {tl = 0, tm = 0, tr = 0, ml = 0, mm = 0, mr = 0, bl = 0, bm = 0, br = 0},
-    top = Side {tl = 1, tm = 1, tr = 1, ml = 1, mm = 1, mr = 1, bl = 1, bm = 1, br = 1},
-    left = Side {tl = 2, tm = 2, tr = 2, ml = 2, mm = 2, mr = 2, bl = 2, bm = 2, br = 2},
-    front = Side {tl = 3, tm = 3, tr = 3, ml = 3, mm = 3, mr = 3, bl = 3, bm = 3, br = 3},
-    right = Side {tl = 4, tm = 4, tr = 4, ml = 4, mm = 4, mr = 4, bl = 4, bm = 4, br = 4},
-    bottom = Side {tl = 5, tm = 5, tr = 5, ml = 5, mm = 5, mr = 5, bl = 5, bm = 5, br = 5}
+    back = Side {tl = Yellow, tm = Yellow, tr = Yellow, ml = Yellow, mm = Yellow, mr = Yellow, bl = Yellow, bm = Yellow, br = Yellow},
+    top = Side {tl = Blue, tm = Blue, tr = Blue, ml = Blue, mm = Blue, mr = Blue, bl = Blue, bm = Blue, br = Blue},
+    left = Side {tl = Orange, tm = Orange, tr = Orange, ml = Orange, mm = Orange, mr = Orange, bl = Orange, bm = Orange, br = Orange},
+    front = Side {tl = White, tm = White, tr = White, ml = White, mm = White, mr = White, bl = White, bm = White, br = White},
+    right = Side {tl = Red, tm = Red, tr = Red, ml = Red, mm = Red, mr = Red, bl = Red, bm = Red, br = Red},
+    bottom = Side {tl = Green, tm = Green, tr = Green, ml = Green, mm = Green, mr = Green, bl = Green, bm = Green, br = Green}
 }
 
 data Move = Move { 
@@ -191,8 +218,10 @@ getCubeFromMoves moves = applyMoves solvedCube moves
 {-
 Add 1 to the element at index x in the vector
 -}
-addToList :: V.Vector Int -> Int -> V.Vector Int
-addToList v x = v V.// [(x, v V.! x + 1)]
+addToList :: V.Vector Int -> Color -> V.Vector Int
+addToList vec color = vec V.// [(cid, (vec V.! cid) + 1)]
+    where
+        cid = fromEnum color
 
 countColors ::Side -> V.Vector Int
 countColors side = foldl (addToList) (V.replicate 6 0) (toListSide side)

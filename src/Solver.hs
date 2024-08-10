@@ -120,8 +120,8 @@ solveUntilImprovement cube moves lastScore endTime =
                 else do
                     --return (lastScore, moves, Clock.diffTimeSpec currentTime endTime)
 
-                    (newCube, newMoves) <- doNRandomMoves cube moves searchDepth
-                    (score3, moves3, _) <- solveUntilImprovement newCube newMoves (evaluate1 newCube) endTime
+                    (mixedCube, mixedMoves) <- doNRandomMoves cube moves searchDepth
+                    (score3, moves3, _) <- solveUntilImprovement mixedCube mixedMoves (evaluate1 mixedCube) endTime
                     if score3 > lastScore
                         then do
                             return (score3, moves3, Clock.diffTimeSpec currentTime endTime)

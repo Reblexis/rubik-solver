@@ -1,13 +1,16 @@
 {-
 Cubie represantation of rubik's cube. The positions are id'd this way:
-- cube rotation: white on the bottom, blue on the front
+- cube rotation: white on the front, blue on the top
 - center cubies ignored
-- clockwise order from front side to middle to back
+- from top left row-major order from front side to middle to back
 - for each 'side' go from top left corner cubie clockwise (top left, top right,...., left mid)
 -}
+module CubeCubies where
 
+import qualified Data.Vector as V
 
-import qualified CubeColors
+import qualified CubeColors as CubeColors
+import CubeColors (Color)
 
 data Cubie = Cubie {
     position :: Int,
@@ -29,7 +32,7 @@ Where should the given cubie go and what should be added to rotation (mod 3 or 2
 
 data CubieMove = CubieMove {
     targetPosition :: Int,
-    rotation :: Int
+    rotationAdd :: Int
 }
 
 data Move = Move {
@@ -37,5 +40,7 @@ data Move = Move {
 }
 
 
-cubieFromColor :: CubeColors.Cube -> Cube
-cubieFromColor colorCube
+
+
+--cubieFromColor :: CubeColors.Cube -> Cube
+--cubieFromColor colorCube = 
