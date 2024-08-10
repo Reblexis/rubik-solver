@@ -55,8 +55,8 @@ getCubies (Cube bk tp lt fr rt bt) =
             [tl fr, bl tp, tr lt],
             [tm fr, bm tp],
             [tr fr, br tp, tl rt],
-            [ml fr, ml lt],
-            [mr fr, mr rt],
+            [ml fr, mr lt],
+            [mr fr, ml rt],
             [bl fr, tl bt, br lt],
             [bm fr, tm bt],
             [br fr, tr bt, bl rt],
@@ -185,8 +185,6 @@ data Move = Move {
     name :: String
 }
 
-movesSameEdge :: String -> String -> Bool
-movesSameEdge m1 m2 = (head m1) == (head m2)
 
 possibleMoves :: [Move]
 possibleMoves = [

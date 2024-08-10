@@ -18,7 +18,7 @@ def build_rubik_solver():
 def run_rubik_solver(moves, algorithm):
     # Step 1: Build the project
     
-    ghc_version = "8.8.4" 
+    ghc_version = "9.4.8" 
     package_name = "rubik-solver"
     package_version = "0.1.0.0" 
     executable_name = "rubik-solver"
@@ -55,7 +55,7 @@ def generate_shuffle(num_moves=20):
     return shuffle
 
 
-def test_algorithm(algorithm, num_tests=100, num_moves=30):
+def test_algorithm(algorithm, num_tests=100, num_moves=20):
     build_rubik_solver()
 
     scores = []
@@ -67,6 +67,7 @@ def test_algorithm(algorithm, num_tests=100, num_moves=30):
     for i in range(num_tests):
         shuffle = generate_shuffle(num_moves=num_moves)
         print(f"Test {i + 1}/{num_tests}")
+        print(f"Shuffle: {shuffle}")
         solution, score, duration = run_rubik_solver(shuffle, algorithm)
         best_solution = max(best_solution, (solution, score), key=lambda x: x[1])
         print(f"solution: {solution}, score: {score}, duration: {duration}")
@@ -90,4 +91,4 @@ def test_algorithm(algorithm, num_tests=100, num_moves=30):
 
 # Example usage
 
-test_algorithm("baseline", num_tests=100, num_moves=30)
+test_algorithm("baseline", num_tests=100, num_moves=5)

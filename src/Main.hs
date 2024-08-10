@@ -3,6 +3,7 @@ module Main where
 import System.Environment (getArgs)
 
 import CubeColors (getCubeFromMoves, applyMoves, evaluate)
+import CubeCubies (cubieFromColorCube)
 import Solver (baselineSolution)
 
 
@@ -22,14 +23,15 @@ main = do
     case args of
         [shuffle, algorithm] -> do
             let moves = words shuffle  -- Split the shuffle into separate moves
-            let cube = getCubeFromMoves moves
+            let colorCube = getCubeFromMoves moves
+            let cubieCube = cubieFromColorCube colorCube
 
             solution <-
                     case algorithm of
-                        "baseline" -> baselineSolution cube 1000
+                        "baseline" -> baselineSolution cubieCube 10000
                         _ -> return []
             
-            let finalCube = applyMoves cube solution
+            let finalCube = applyMoves colorCube solution
             let score = evaluate finalCube
 
             putStrLn $ "Solution: " ++ show solution

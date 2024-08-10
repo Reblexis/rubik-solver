@@ -59,7 +59,7 @@ findCubie colorCubie allCubies =
         cubieIndex = elemIndex colorCubie allCubies
     in case cubieIndex of
         Just index -> Cubie index (getRotationAdd colorCubie (allCubies !! index))
-        Nothing -> error "Cubie not found"
+        Nothing -> error ("Cubie" ++ show colorCubie ++ "not found")
 
 
 cubieFromColorCube :: CubeColors.Cube -> Cube
@@ -100,49 +100,75 @@ getTransformation cube =
 
 
 cubieFromColorMove :: (CubeColors.Cube -> CubeColors.Cube) -> Move
-cubieFromColorMove move = getTransformation $ cubieFromColorCube $ move CubeColors.solvedCube
+cubieFromColorMove colorMove = getTransformation $ cubieFromColorCube $ colorMove CubeColors.solvedCube
 
 {-
 Move definitions.
 
 Memoization optimizes this.
 -}
-r :: Move
-r = cubieFromColorMove CubeColors.rMove
-l :: Move
-l = cubieFromColorMove CubeColors.lMove
-u :: Move
-u = cubieFromColorMove CubeColors.uMove
-d :: Move
-d = cubieFromColorMove CubeColors.dMove
-b :: Move
-b = cubieFromColorMove CubeColors.bMove
-f :: Move
-f = cubieFromColorMove CubeColors.fMove
-rp :: Move
-rp = cubieFromColorMove (CubeColors.prime CubeColors.rMove)
-lp :: Move
-lp = cubieFromColorMove (CubeColors.prime CubeColors.lMove)
-up :: Move
-up = cubieFromColorMove (CubeColors.prime CubeColors.uMove)
-dp :: Move
-dp = cubieFromColorMove (CubeColors.prime CubeColors.dMove)
-bp :: Move
-bp = cubieFromColorMove (CubeColors.prime CubeColors.bMove)
-fp :: Move
-fp = cubieFromColorMove (CubeColors.prime CubeColors.fMove)
-r2 :: Move
-r2 = cubieFromColorMove (CubeColors.rMove . CubeColors.rMove)
-l2 :: Move
-l2 = cubieFromColorMove (CubeColors.lMove . CubeColors.lMove)
-u2 :: Move
-u2 = cubieFromColorMove (CubeColors.uMove . CubeColors.uMove)
-d2 :: Move
-d2 = cubieFromColorMove (CubeColors.dMove . CubeColors.dMove)
-b2 :: Move
-b2 = cubieFromColorMove (CubeColors.bMove . CubeColors.bMove)
-f2 :: Move
-f2 = cubieFromColorMove (CubeColors.fMove . CubeColors.fMove)
+data NamedMove = NamedMove {
+    move :: Move,
+    name :: String
+} deriving Show
+
+r :: NamedMove
+r = NamedMove {move = cubieFromColorMove CubeColors.rMove, name = "R"}
+
+l :: NamedMove
+l = NamedMove {move = cubieFromColorMove CubeColors.lMove, name = "L"}
+
+u :: NamedMove
+u = NamedMove {move = cubieFromColorMove CubeColors.uMove, name = "U"}
+
+d :: NamedMove
+d = NamedMove {move = cubieFromColorMove CubeColors.dMove, name = "D"}
+
+b :: NamedMove
+b = NamedMove {move = cubieFromColorMove CubeColors.bMove, name = "B"}
+
+f :: NamedMove
+f = NamedMove {move = cubieFromColorMove CubeColors.fMove, name = "F"}
+
+rPrime :: NamedMove
+rPrime = NamedMove {move = cubieFromColorMove (CubeColors.prime CubeColors.rMove), name = "R'"}
+
+lPrime :: NamedMove
+lPrime = NamedMove {move = cubieFromColorMove (CubeColors.prime CubeColors.lMove), name = "L'"}
+
+uPrime :: NamedMove
+uPrime = NamedMove {move = cubieFromColorMove (CubeColors.prime CubeColors.uMove), name = "U'"}
+
+dPrime :: NamedMove
+dPrime = NamedMove {move = cubieFromColorMove (CubeColors.prime CubeColors.dMove), name = "D'"} 
+
+bPrime :: NamedMove
+bPrime = NamedMove {move = cubieFromColorMove (CubeColors.prime CubeColors.bMove), name = "B'"}
+
+fPrime :: NamedMove
+fPrime = NamedMove {move = cubieFromColorMove (CubeColors.prime CubeColors.fMove), name = "F'"}
+
+r2 :: NamedMove
+r2 = NamedMove {move = cubieFromColorMove (CubeColors.rMove . CubeColors.rMove), name = "R2"}
+
+l2 :: NamedMove
+l2 = NamedMove {move = cubieFromColorMove (CubeColors.lMove . CubeColors.lMove), name = "L2"}
+
+u2 :: NamedMove
+u2 = NamedMove {move = cubieFromColorMove (CubeColors.uMove . CubeColors.uMove), name = "U2"}
+
+d2 :: NamedMove
+d2 = NamedMove {move = cubieFromColorMove (CubeColors.dMove . CubeColors.dMove), name = "D2"}
+
+b2 :: NamedMove
+b2 = NamedMove {move = cubieFromColorMove (CubeColors.bMove . CubeColors.bMove), name = "B2"}
+
+f2 :: NamedMove
+f2 = NamedMove {move = cubieFromColorMove (CubeColors.fMove . CubeColors.fMove), name = "F2"}
+
+
+possibleMoves :: [NamedMove]
+possibleMoves = [r, l, u, d, b, f, rPrime, lPrime, uPrime, dPrime, bPrime, fPrime, r2, l2, u2, d2, b2, f2]
 
 
 -- Cubies that are at the same position as their index and their rotation is 0
