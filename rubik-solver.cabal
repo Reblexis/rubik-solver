@@ -69,11 +69,11 @@ executable rubik-solver
 
     -- Other library packages from which modules are imported.
     build-depends:    base, vector, clock, random
-    other-modules:    Solver, Cube
+    other-modules:    Solver, CubeColors, CubeCubies
 
     -- Directories containing source files.
     hs-source-dirs:   src
-    exposed-modules: Main, Solver, Cube
+    exposed-modules: Main, Solver, CubeColors, CubeCubies
 
     -- Base language which the package is written in.
     default-language: Haskell2010
