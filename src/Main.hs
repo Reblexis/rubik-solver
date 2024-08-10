@@ -2,7 +2,7 @@ module Main where
 
 import System.Environment (getArgs)
 
-import Cube (getCubeFromMoves, applyMoves, evaluate)
+import CubeColors (getCubeFromMoves, applyMoves, evaluate)
 import Solver (baselineSolution)
 
 

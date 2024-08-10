@@ -6,7 +6,7 @@ import Data.Foldable
 import qualified System.Clock as Clock
 import Data.IORef
 
-import Cube
+import CubeColors
 
 
 -- Check if there is cross in the middle matching middle points of the other sides
