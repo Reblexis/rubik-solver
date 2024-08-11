@@ -131,22 +131,22 @@ f :: NamedMove
 f = NamedMove {move = cubieFromColorMove CubeColors.fMove, name = "F"}
 
 rPrime :: NamedMove
-rPrime = NamedMove {move = cubieFromColorMove (CubeColors.prime CubeColors.rMove), name = "R'"}
+rPrime = NamedMove {move = cubieFromColorMove (CubeColors.prime CubeColors.rMove), name = "RP"}
 
 lPrime :: NamedMove
-lPrime = NamedMove {move = cubieFromColorMove (CubeColors.prime CubeColors.lMove), name = "L'"}
+lPrime = NamedMove {move = cubieFromColorMove (CubeColors.prime CubeColors.lMove), name = "LP"}
 
 uPrime :: NamedMove
-uPrime = NamedMove {move = cubieFromColorMove (CubeColors.prime CubeColors.uMove), name = "U'"}
+uPrime = NamedMove {move = cubieFromColorMove (CubeColors.prime CubeColors.uMove), name = "UP"}
 
 dPrime :: NamedMove
-dPrime = NamedMove {move = cubieFromColorMove (CubeColors.prime CubeColors.dMove), name = "D'"} 
+dPrime = NamedMove {move = cubieFromColorMove (CubeColors.prime CubeColors.dMove), name = "DP"} 
 
 bPrime :: NamedMove
-bPrime = NamedMove {move = cubieFromColorMove (CubeColors.prime CubeColors.bMove), name = "B'"}
+bPrime = NamedMove {move = cubieFromColorMove (CubeColors.prime CubeColors.bMove), name = "BP"}
 
 fPrime :: NamedMove
-fPrime = NamedMove {move = cubieFromColorMove (CubeColors.prime CubeColors.fMove), name = "F'"}
+fPrime = NamedMove {move = cubieFromColorMove (CubeColors.prime CubeColors.fMove), name = "FP"}
 
 r2 :: NamedMove
 r2 = NamedMove {move = cubieFromColorMove (CubeColors.rMove . CubeColors.rMove), name = "R2"}

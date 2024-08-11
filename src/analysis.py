@@ -48,7 +48,7 @@ def run_rubik_solver(moves, algorithm):
 
 
 def generate_shuffle(num_moves=20):
-    POSSIBLE_SHUFFLE_MOVES = ["R", "L", "U", "D", "F", "B", "R'", "L'", "U'", "D'", "F'", "B'"]
+    POSSIBLE_SHUFFLE_MOVES = ["R", "L", "U", "D", "F", "B", "RP", "LP", "UP", "DP", "FP", "BP"]
 
     shuffle = " ".join(random.choices(POSSIBLE_SHUFFLE_MOVES, k=num_moves))
 
