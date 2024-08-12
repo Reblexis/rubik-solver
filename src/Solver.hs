@@ -84,7 +84,7 @@ findMoves cube depth limit moves endTime = do
 doNRandomMoves :: Cube -> [String] -> Int -> IO (Cube, [String])
 doNRandomMoves cube moves 0 = return (cube, moves)
 doNRandomMoves cube moves n = do
-    randomMove <- getRandomMove
+    randomMove <- getRandomMove (if isG1 cube then possibleMovesG1 else possibleMoves)
     let newCube = applyMove cube (move randomMove)
     let newMoves = name randomMove : moves
     doNRandomMoves newCube newMoves (n - 1)
@@ -93,7 +93,7 @@ doNRandomMoves cube moves n = do
 solveUntilImprovement :: Cube -> [String] -> Double -> Clock.TimeSpec -> IO (Double, [String], Clock.TimeSpec)
 solveUntilImprovement cube moves lastScore endTime =
     do
-        let searchDepth = (if isG1 cube then 8 else 5)
+        let searchDepth = (if isG1 cube then 8 else 6)
         let currentDepth = length moves
         (bestMoves, score, _, newCube) <- findMoves cube currentDepth (searchDepth+currentDepth) moves endTime
         currentTime <- Clock.getTime Clock.Monotonic

@@ -174,10 +174,10 @@ possibleMoves = [r, l, u, d, b, f, rPrime, lPrime, uPrime, dPrime, bPrime, fPrim
 possibleMovesG1 :: [NamedMove]
 possibleMovesG1 = [r2, l2, u, uPrime, u2, d, dPrime, d2, f2, b2]
 
-getRandomMove :: IO NamedMove
-getRandomMove = do
-    index <- randomRIO (0, length possibleMoves - 1)
-    return $ possibleMoves !! index
+getRandomMove :: [NamedMove] -> IO NamedMove
+getRandomMove moves = do
+    index <- randomRIO (0, length moves - 1)
+    return $ moves !! index
 
 
 -- Cubies that are at the same position as their index and their rotation is 0
