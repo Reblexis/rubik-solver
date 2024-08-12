@@ -50,8 +50,8 @@ def run_rubik_solver(moves, algorithm):
 
 
 def generate_shuffle(num_moves=20):
-    POSSIBLE_SHUFFLE_MOVES = ["R2", "L2", "U", "D", "F2", "B2"]
-    #POSSIBLE_SHUFFLE_MOVES = ["R", "L", "U", "D", "F", "B", "RP", "LP", "UP", "DP", "FP", "BP"]
+    #POSSIBLE_SHUFFLE_MOVES = ["R2", "L2", "U", "D", "F2", "B2"]
+    POSSIBLE_SHUFFLE_MOVES = ["R", "L", "U", "D", "F", "B", "RP", "LP", "UP", "DP", "FP", "BP"]
 
     shuffle = " ".join(random.choices(POSSIBLE_SHUFFLE_MOVES, k=num_moves))
 
@@ -94,4 +94,4 @@ def test_algorithm(algorithm, num_tests=100, num_moves=20):
 
 # Example usage
 
-test_algorithm("baseline", num_tests=100, num_moves=30)
+test_algorithm("baseline", num_tests=100, num_moves=20)
