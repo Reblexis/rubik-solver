@@ -15,7 +15,7 @@ def build_rubik_solver():
         return build_process.returncode
 
 
-def run_rubik_solver(moves, algorithm):
+def run_rubik_solver(moves, time_limit=1000, search_depth=3, search_depth_g1=5, random_moves_num=3):
     # Step 1: Build the project
     
     ghc_version = "9.4.8" 
@@ -25,7 +25,7 @@ def run_rubik_solver(moves, algorithm):
 
     executable_path = f'dist-newstyle/build/x86_64-linux/ghc-{ghc_version}/{package_name}-{package_version}/x/{executable_name}/build/{executable_name}/{executable_name}'
 
-    args = [moves, algorithm]
+    args = [moves, str(time_limit), str(search_depth), str(search_depth_g1), str(random_moves_num)]
 
     start_time = time.time()
     run_process = subprocess.run(
@@ -58,7 +58,7 @@ def generate_shuffle(num_moves=20):
     return shuffle
 
 
-def test_algorithm(algorithm, num_tests=100, num_moves=20):
+def test_solver(time_limit, search_depth, search_depth_g1, random_moves_num, num_tests=100, num_moves=20):
     build_rubik_solver()
 
     scores = []
@@ -71,7 +71,7 @@ def test_algorithm(algorithm, num_tests=100, num_moves=20):
         shuffle = generate_shuffle(num_moves=num_moves)
         print(f"Test {i + 1}/{num_tests}")
         print(f"Shuffle: {shuffle}")
-        solution, score, duration = run_rubik_solver(shuffle, algorithm)
+        solution, score, duration = run_rubik_solver(shuffle, time_limit, search_depth, search_depth_g1, random_moves_num)
         best_solution = max(best_solution, (solution, score), key=lambda x: x[1])
         print(f"solution: {solution}, score: {score}, duration: {duration}")
         scores.append(score)
@@ -94,4 +94,4 @@ def test_algorithm(algorithm, num_tests=100, num_moves=20):
 
 # Example usage
 
-test_algorithm("baseline", num_tests=100, num_moves=20)
+test_solver(100, 3, 5, 1, num_tests=100, num_moves=20)

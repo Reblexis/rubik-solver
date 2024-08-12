@@ -5,7 +5,7 @@ import System.IO (stderr, hPutStrLn)
 
 import CubeColors (getCubeFromMoves, applyMoves, evaluate)
 import CubeCubies (cubieFromColorCube)
-import Solver (baselineSolution)
+import Solver (findSolution)
 
 
 {- |
@@ -22,16 +22,13 @@ main :: IO ()
 main = do
     args <- getArgs
     case args of
-        [shuffle, algorithm] -> do
+        [shuffle, timeLimit, searchDepth, searchDepthG1, randomMovesNum] -> do
             let moves = words shuffle  -- Split the shuffle into separate moves
             let colorCube = getCubeFromMoves moves
             let cubieCube = cubieFromColorCube colorCube
 
-            solution <-
-                    case algorithm of
-                        "baseline" -> baselineSolution cubieCube 300000
-                        _ -> return []
-            
+            solution <- findSolution cubieCube (read timeLimit) (read searchDepth) (read searchDepthG1) (read randomMovesNum)
+                                    
             let finalCube = applyMoves colorCube solution
             let score = evaluate finalCube
 

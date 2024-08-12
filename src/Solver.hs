@@ -90,12 +90,12 @@ doNRandomMoves cube moves n = do
     doNRandomMoves newCube newMoves (n - 1)
 
 
-solveUntilImprovement :: Cube -> [String] -> Double -> Clock.TimeSpec -> IO (Double, [String], Clock.TimeSpec)
-solveUntilImprovement cube moves lastScore endTime =
+solveUntilImprovement :: Cube -> [String] -> Double -> Clock.TimeSpec -> Int -> Int -> Int -> IO (Double, [String], Clock.TimeSpec)
+solveUntilImprovement cube moves lastScore endTime searchDepth searchDepthG1 randomMovesNum =
     do
-        let searchDepth = (if isG1 cube then 8 else 6)
+        let currentSearchDepth = (if isG1 cube then searchDepthG1 else searchDepth)
         let currentDepth = length moves
-        (bestMoves, score, _, newCube) <- findMoves cube currentDepth (searchDepth+currentDepth) moves endTime
+        (bestMoves, score, _, newCube) <- findMoves cube currentDepth (currentSearchDepth+currentDepth) moves endTime
         currentTime <- Clock.getTime Clock.Monotonic
         -- putStrLn $ "Final delay: " ++ show (Clock.diffTimeSpec currentTime endTime)
         if currentTime >= endTime
@@ -108,7 +108,7 @@ solveUntilImprovement cube moves lastScore endTime =
                 else
                     if score > lastScore
                         then do
-                            solveUntilImprovement newCube bestMoves score endTime
+                            solveUntilImprovement newCube bestMoves score endTime searchDepth searchDepthG1 randomMovesNum
                     else do
                         -- Write to stderr
                         --hPutStrLn stderr $ "Final score: " ++ show lastScore
@@ -116,8 +116,8 @@ solveUntilImprovement cube moves lastScore endTime =
                         --putStrLn $ "Final score: " ++ show lastScore
                         --return (lastScore, moves, Clock.diffTimeSpec currentTime endTime)
                         
-                        (mixedCube, mixedMoves) <- doNRandomMoves cube moves searchDepth
-                        (score3, moves3, _) <- solveUntilImprovement mixedCube mixedMoves (evaluate mixedCube) endTime
+                        (mixedCube, mixedMoves) <- doNRandomMoves cube moves randomMovesNum
+                        (score3, moves3, _) <- solveUntilImprovement mixedCube mixedMoves (evaluate mixedCube) endTime searchDepth searchDepthG1 randomMovesNum
                         if score3 > lastScore
                             then do
                                 return (score3, moves3, Clock.diffTimeSpec currentTime endTime)
@@ -129,11 +129,11 @@ solveUntilImprovement cube moves lastScore endTime =
 addNanoSecs :: Clock.TimeSpec -> Integer -> Clock.TimeSpec
 addNanoSecs (Clock.TimeSpec s ns) nsecs = Clock.TimeSpec s (ns + fromIntegral nsecs)
 
-baselineSolution :: Cube -> Integer -> IO [String]
-baselineSolution cube timeLimit = do
+findSolution :: Cube -> Integer -> Int -> Int -> Int -> IO [String]
+findSolution cube timeLimit searchDepth searchDepthG1 randomMovesNum = do
     startTime <- Clock.getTime Clock.Monotonic
     let endTime = addNanoSecs startTime (timeLimit * (10^(6::Integer)))
-    (score, reversedMoves, _) <- solveUntilImprovement cube [] (evaluate cube) endTime
+    (score, reversedMoves, _) <- solveUntilImprovement cube [] (evaluate cube) endTime searchDepth searchDepthG1 randomMovesNum
     let moves = reverse reversedMoves
     hPutStrLn stderr $ "Final score: " ++ show score
 
