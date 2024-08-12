@@ -93,4 +93,4 @@ def test_algorithm(algorithm, num_tests=100, num_moves=20):
 
 # Example usage
 
-test_algorithm("baseline", num_tests=100, num_moves=20)
+test_algorithm("baseline", num_tests=10, num_moves=60)

@@ -20,9 +20,6 @@ selectBest = maximumBy compareStates
     compareStates (_, score1, depth1, _) (_, score2, depth2, _) =
       compare score1 score2 <> compare depth2 depth1
 
-movesSameEdge :: String -> String -> Bool
-movesSameEdge move1 move2 = head move1 == head move2
-
 evaluateCubie :: Cubie -> Int -> Int
 evaluateCubie cubie pos 
     | position cubie == pos && rotation cubie == 0 = 3
@@ -31,6 +28,20 @@ evaluateCubie cubie pos
 
 evaluate :: Cube -> Double
 evaluate (Cube cubies) = fromIntegral(sum $ zipWith evaluateCubie cubies [0..19])
+
+pruneMove :: String -> [String] -> Bool
+pruneMove _ [] = False
+pruneMove moveNotation moves
+    | lastEdge == currentEdge = True
+    | lastEdge == 'B' && currentEdge == 'F' = True
+    | lastEdge == 'L' && currentEdge == 'R' = True
+    | lastEdge == 'D' && currentEdge == 'U' = True
+    | otherwise = False
+    where
+        lastMove = head moves
+        lastEdge = head lastMove
+        currentEdge = head moveNotation
+
 
 {-# LANGUAGE BangPatterns #-}
 findMoves :: Cube -> Int -> Int -> [String] -> Clock.TimeSpec -> IO ([String], Double, Int, Cube)
@@ -57,7 +68,7 @@ findMoves cube depth limit moves endTime = do
     checkAndRunMove currentCube currentMoves (NamedMove mv moveNotation) = do
         currentTime <- Clock.getTime Clock.Monotonic
         -- putStrLn $ "Move: " ++ moveNotation ++ " Time: " ++ show (Clock.diffTimeSpec currentTime endTime)
-        if currentTime >= endTime || (not (null currentMoves) && movesSameEdge (head currentMoves) moveNotation)
+        if currentTime >= endTime || pruneMove moveNotation currentMoves
             then do
                 return (currentMoves, negativeInfinity, depth, currentCube)
             else do
@@ -65,15 +76,15 @@ findMoves cube depth limit moves endTime = do
                 let newMoves = moveNotation : currentMoves
                 findMoves newCube (depth + 1) limit newMoves endTime
 
-{-
+
 doNRandomMoves :: Cube -> [String] -> Int -> IO (Cube, [String])
 doNRandomMoves cube moves 0 = return (cube, moves)
 doNRandomMoves cube moves n = do
     randomMove <- getRandomMove
-    let newCube = move randomMove cube
-    let newMoves = (name randomMove) : moves
+    let newCube = applyMove cube (move randomMove)
+    let newMoves = name randomMove : moves
     doNRandomMoves newCube newMoves (n - 1)
--}
+
 
 solveUntilImprovement :: Cube -> [String] -> Double -> Clock.TimeSpec -> IO (Double, [String], Clock.TimeSpec)
 solveUntilImprovement cube moves lastScore endTime =
@@ -85,6 +96,7 @@ solveUntilImprovement cube moves lastScore endTime =
         -- putStrLn $ "Final delay: " ++ show (Clock.diffTimeSpec currentTime endTime)
         if currentTime >= endTime
             then do
+                hPutStrLn stderr $ "Final score: " ++ show lastScore
                 return (lastScore, moves, Clock.diffTimeSpec currentTime endTime)
             else do
                 if score > lastScore
@@ -92,19 +104,19 @@ solveUntilImprovement cube moves lastScore endTime =
                         solveUntilImprovement newCube bestMoves score endTime
                 else do
                     -- Write to stderr
-                    hPutStrLn stderr $ "Final score: " ++ show lastScore
+                    --hPutStrLn stderr $ "Final score: " ++ show lastScore
                 
                     --putStrLn $ "Final score: " ++ show lastScore
-                    return (lastScore, moves, Clock.diffTimeSpec currentTime endTime)
-                    {-
+                    --return (lastScore, moves, Clock.diffTimeSpec currentTime endTime)
+                    
                     (mixedCube, mixedMoves) <- doNRandomMoves cube moves searchDepth
-                    (score3, moves3, _) <- solveUntilImprovement mixedCube mixedMoves (evaluate1 mixedCube) endTime
+                    (score3, moves3, _) <- solveUntilImprovement mixedCube mixedMoves (evaluate mixedCube) endTime
                     if score3 > lastScore
                         then do
                             return (score3, moves3, Clock.diffTimeSpec currentTime endTime)
                     else do
                         return (lastScore, moves, Clock.diffTimeSpec currentTime endTime)
-                        -}
+                        
 
 
 addNanoSecs :: Clock.TimeSpec -> Integer -> Clock.TimeSpec

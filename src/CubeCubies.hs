@@ -9,6 +9,7 @@ module CubeCubies where
 
 import Data.List (elemIndex)
 import Data.Array
+import System.Random
 
 import qualified CubeColors
 import CubeColors (Color(..), ColorCubie)
@@ -169,6 +170,11 @@ f2 = NamedMove {move = cubieFromColorMove (CubeColors.fMove . CubeColors.fMove),
 
 possibleMoves :: [NamedMove]
 possibleMoves = [r, l, u, d, b, f, rPrime, lPrime, uPrime, dPrime, bPrime, fPrime, r2, l2, u2, d2, b2, f2]
+
+getRandomMove :: IO NamedMove
+getRandomMove = do
+    index <- randomRIO (0, length possibleMoves - 1)
+    return $ possibleMoves !! index
 
 
 -- Cubies that are at the same position as their index and their rotation is 0
