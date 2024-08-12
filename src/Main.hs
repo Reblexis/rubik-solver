@@ -1,6 +1,7 @@
 module Main where
 
 import System.Environment (getArgs)
+import System.IO (stderr, hPutStrLn)
 
 import CubeColors (getCubeFromMoves, applyMoves, evaluate)
 import CubeCubies (cubieFromColorCube)
@@ -28,7 +29,7 @@ main = do
 
             solution <-
                     case algorithm of
-                        "baseline" -> baselineSolution cubieCube 200000
+                        "baseline" -> baselineSolution cubieCube 1000000
                         _ -> return []
             
             let finalCube = applyMoves colorCube solution
@@ -36,7 +37,8 @@ main = do
 
             putStrLn $ "Solution: " ++ show solution
             putStrLn $ "Achieved score: " ++ show score
-            
+            hPutStrLn stderr $ "Cube: " ++ show finalCube
+
         _ -> putStrLn "Usage: cabal run \"MOVE1 MOVE2 MOVE3 ..\" algorithm"
 
 
