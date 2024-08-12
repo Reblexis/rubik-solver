@@ -53,25 +53,26 @@ getCubies (Cube bk tp lt fr rt bt) =
     let
         cubieColors = [
             [tl fr, bl tp, tr lt],
+            [tl rt, br tp, tr fr],
+            [tl bt, bl fr, br lt],
+            [br fr, tr bt, bl rt],
+            [tl tp, bl bk, tl lt],
+            [br bk, tr tp, tr rt],
+            [tl bk, bl bt, bl lt],
+            [tr bk, br rt, br bt],
             [tm fr, bm tp],
-            [tr fr, br tp, tl rt],
             [ml fr, mr lt],
             [mr fr, ml rt],
-            [bl fr, tl bt, br lt],
             [bm fr, tm bt],
-            [br fr, tr bt, bl rt],
             [ml tp, tm lt],
             [mr tp, tm rt],
             [ml bt, bm lt],
             [mr bt, bm rt],
-            [bl bk, tl tp, tl lt],
             [bm bk, tm tp],
-            [br bk, tr tp, tr rt],
             [ml bk, ml lt],
             [mr bk, mr rt],
-            [tl bk, bl bt, bl lt],
-            [tm bk, bm bt],
-            [tr bk, br bt, br rt]]
+            [tm bk, bm bt]]
+
     in map ColorCubie cubieColors
 
 

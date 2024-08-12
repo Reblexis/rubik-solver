@@ -76,7 +76,7 @@ applyCubieMove cubie move =
     in
         let
             newPosition = targetPosition cubieMove
-            newRotation = (rotation cubie + rotationAdd cubieMove) `mod` 3
+            newRotation = (rotation cubie + rotationAdd cubieMove) `mod` (if newPosition < 8 then 3 else 2)
         in 
             Cubie newPosition newRotation
 
