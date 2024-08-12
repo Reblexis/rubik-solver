@@ -116,7 +116,7 @@ solveUntilImprovement cube moves lastScore endTime searchDepth searchDepthG1 ran
                         --putStrLn $ "Final score: " ++ show lastScore
                         --return (lastScore, moves, Clock.diffTimeSpec currentTime endTime)
                         
-                        (mixedCube, mixedMoves) <- doNRandomMoves cube moves randomMovesNum
+                        (mixedCube, mixedMoves) <- doNRandomMoves cube moves currentSearchDepth
                         (score3, moves3, _) <- solveUntilImprovement mixedCube mixedMoves (evaluate mixedCube) endTime searchDepth searchDepthG1 randomMovesNum
                         if score3 > lastScore
                             then do
