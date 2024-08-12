@@ -29,7 +29,7 @@ main = do
 
             solution <-
                     case algorithm of
-                        "baseline" -> baselineSolution cubieCube 1000000
+                        "baseline" -> baselineSolution cubieCube 300000
                         _ -> return []
             
             let finalCube = applyMoves colorCube solution
@@ -37,7 +37,7 @@ main = do
 
             putStrLn $ "Solution: " ++ show solution
             putStrLn $ "Achieved score: " ++ show score
-            hPutStrLn stderr $ "Cube: " ++ show finalCube
+            -- hPutStrLn stderr $ "Cube: " ++ show finalCube
 
         _ -> putStrLn "Usage: cabal run \"MOVE1 MOVE2 MOVE3 ..\" algorithm"
 

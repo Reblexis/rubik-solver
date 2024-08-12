@@ -72,13 +72,13 @@ cubieFromColorCube colorCube =
 
 applyCubieMove :: Cubie -> Move -> Cubie
 applyCubieMove cubie move =
-    let 
+    let
         cubieMove = cubieMoves move ! position cubie
     in
         let
             newPosition = targetPosition cubieMove
             newRotation = (rotation cubie + rotationAdd cubieMove) `mod` (if newPosition < 8 then 3 else 2)
-        in 
+        in
             Cubie newPosition newRotation
 
 -- Applies different cubie move to each cubie depending on its position
@@ -141,7 +141,7 @@ uPrime :: NamedMove
 uPrime = NamedMove {move = cubieFromColorMove (CubeColors.prime CubeColors.uMove), name = "UP"}
 
 dPrime :: NamedMove
-dPrime = NamedMove {move = cubieFromColorMove (CubeColors.prime CubeColors.dMove), name = "DP"} 
+dPrime = NamedMove {move = cubieFromColorMove (CubeColors.prime CubeColors.dMove), name = "DP"}
 
 bPrime :: NamedMove
 bPrime = NamedMove {move = cubieFromColorMove (CubeColors.prime CubeColors.bMove), name = "BP"}
@@ -171,6 +171,9 @@ f2 = NamedMove {move = cubieFromColorMove (CubeColors.fMove . CubeColors.fMove),
 possibleMoves :: [NamedMove]
 possibleMoves = [r, l, u, d, b, f, rPrime, lPrime, uPrime, dPrime, bPrime, fPrime, r2, l2, u2, d2, b2, f2]
 
+possibleMovesG1 :: [NamedMove]
+possibleMovesG1 = [r2, l2, u, uPrime, u2, d, dPrime, d2, f2, b2]
+
 getRandomMove :: IO NamedMove
 getRandomMove = do
     index <- randomRIO (0, length possibleMoves - 1)
@@ -180,3 +183,16 @@ getRandomMove = do
 -- Cubies that are at the same position as their index and their rotation is 0
 countCorrectCubies :: Cube -> Int
 countCorrectCubies (Cube cubies) = length $ filter (\(cubie, index) -> position cubie == index && rotation cubie == 0) (zip cubies [0..19])
+
+
+uDSlice :: [Int]
+uDSlice = [9, 10, 17, 18]
+
+{- 
+Check if the cube is in G1 subset. This means that all cubies are correctly rotated (rotation 0) and the u-d slice edge are only in that slice.
+-}
+
+isG1 :: Cube -> Bool
+isG1 (Cube cubies) = all (\cubie -> rotation cubie == 0) cubies && all (\(cubie, index) -> notElem index uDSlice || elem (position cubie) uDSlice) (zip cubies [0..19])
+
+

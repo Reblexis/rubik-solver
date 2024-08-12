@@ -23,11 +23,15 @@ selectBest = maximumBy compareStates
 evaluateCubie :: Cubie -> Int -> Int
 evaluateCubie cubie pos 
     | position cubie == pos && rotation cubie == 0 = 3
-    | position cubie == pos = 1
     | otherwise = 0
 
 evaluate :: Cube -> Double
-evaluate (Cube cubies) = fromIntegral(sum $ zipWith evaluateCubie cubies [0..19])
+evaluate cube
+    | isG1 cube= 100.0 + cubieMetric
+    | otherwise = cubieMetric
+    where 
+        cubieMetric = fromIntegral(sum $ zipWith evaluateCubie (cubies cube) [0..19])
+    
 
 pruneMove :: String -> [String] -> Bool
 pruneMove _ [] = False
@@ -58,7 +62,7 @@ findMoves cube depth limit moves endTime = do
                     return (moves, evaluate cube, depth, cube)
                 else do
 
-                results <- mapM (checkAndRunMove cube moves) possibleMoves
+                results <- mapM (checkAndRunMove cube moves) (if isG1 cube then possibleMovesG1 else possibleMoves)
 
                 let !bestEval = selectBest  ((moves, evaluate cube, depth, cube) : results)
                 -- putStrLn $ "Time: " ++ show (Clock.diffTimeSpec currentTime endTime)
@@ -89,7 +93,7 @@ doNRandomMoves cube moves n = do
 solveUntilImprovement :: Cube -> [String] -> Double -> Clock.TimeSpec -> IO (Double, [String], Clock.TimeSpec)
 solveUntilImprovement cube moves lastScore endTime =
     do
-        let searchDepth = 6
+        let searchDepth = (if isG1 cube then 8 else 5)
         let currentDepth = length moves
         (bestMoves, score, _, newCube) <- findMoves cube currentDepth (searchDepth+currentDepth) moves endTime
         currentTime <- Clock.getTime Clock.Monotonic
@@ -98,23 +102,27 @@ solveUntilImprovement cube moves lastScore endTime =
             then do
                 return (lastScore, moves, Clock.diffTimeSpec currentTime endTime)
             else do
-                if score > lastScore
+                if score >= 160.0
                     then do
-                        solveUntilImprovement newCube bestMoves score endTime
-                else do
-                    -- Write to stderr
-                    --hPutStrLn stderr $ "Final score: " ++ show lastScore
-                
-                    --putStrLn $ "Final score: " ++ show lastScore
-                    --return (lastScore, moves, Clock.diffTimeSpec currentTime endTime)
-                    
-                    (mixedCube, mixedMoves) <- doNRandomMoves cube moves searchDepth
-                    (score3, moves3, _) <- solveUntilImprovement mixedCube mixedMoves (evaluate mixedCube) endTime
-                    if score3 > lastScore
+                        return (score, bestMoves, Clock.diffTimeSpec currentTime endTime)
+                else
+                    if score > lastScore
                         then do
-                            return (score3, moves3, Clock.diffTimeSpec currentTime endTime)
+                            solveUntilImprovement newCube bestMoves score endTime
                     else do
-                        return (lastScore, moves, Clock.diffTimeSpec currentTime endTime)
+                        -- Write to stderr
+                        --hPutStrLn stderr $ "Final score: " ++ show lastScore
+                    
+                        --putStrLn $ "Final score: " ++ show lastScore
+                        --return (lastScore, moves, Clock.diffTimeSpec currentTime endTime)
+                        
+                        (mixedCube, mixedMoves) <- doNRandomMoves cube moves searchDepth
+                        (score3, moves3, _) <- solveUntilImprovement mixedCube mixedMoves (evaluate mixedCube) endTime
+                        if score3 > lastScore
+                            then do
+                                return (score3, moves3, Clock.diffTimeSpec currentTime endTime)
+                        else do
+                            return (lastScore, moves, Clock.diffTimeSpec currentTime endTime)
                         
 
 
