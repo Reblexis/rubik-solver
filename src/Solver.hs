@@ -5,6 +5,7 @@ import qualified Data.Vector as V
 import Data.Foldable
 import qualified System.Clock as Clock
 import Data.IORef
+import System.IO (stderr, hPutStrLn)
 
 import CubeCubies
 import Data.Type.Equality (apply)
@@ -78,7 +79,8 @@ solveUntilImprovement :: Cube -> [String] -> Double -> Clock.TimeSpec -> IO (Dou
 solveUntilImprovement cube moves lastScore endTime =
     do
         let searchDepth = 5
-        (bestMoves, score, _, newCube) <- findMoves cube (length moves) searchDepth moves endTime
+        let currentDepth = length moves
+        (bestMoves, score, _, newCube) <- findMoves cube currentDepth (searchDepth+currentDepth) moves endTime
         currentTime <- Clock.getTime Clock.Monotonic
         -- putStrLn $ "Final delay: " ++ show (Clock.diffTimeSpec currentTime endTime)
         if currentTime >= endTime
@@ -89,6 +91,9 @@ solveUntilImprovement cube moves lastScore endTime =
                     then do
                         solveUntilImprovement newCube bestMoves score endTime
                 else do
+                    -- Write to stderr
+                    hPutStrLn stderr $ "Final score: " ++ show lastScore
+                
                     --putStrLn $ "Final score: " ++ show lastScore
                     return (lastScore, moves, Clock.diffTimeSpec currentTime endTime)
                     {-

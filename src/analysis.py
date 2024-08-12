@@ -43,6 +43,8 @@ def run_rubik_solver(moves, algorithm):
     solution, score = stdout.split("\n")[:2]
     solution = ast.literal_eval(solution.split(": ")[1])
     score = float(score.split(": ")[1])
+
+    print(f"Stderr: {run_process.stderr}")
     
     return solution, score, duration
 
@@ -91,4 +93,4 @@ def test_algorithm(algorithm, num_tests=100, num_moves=20):
 
 # Example usage
 
-test_algorithm("baseline", num_tests=100, num_moves=5)
+test_algorithm("baseline", num_tests=100, num_moves=20)
