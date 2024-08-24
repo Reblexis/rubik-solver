@@ -13,24 +13,28 @@ import qualified Data.Vector as V
 import Data.List (sort)
 import System.Random
 
+-- | Represents the six possible colors on a Rubik's Cube
 data Color = Yellow | Blue | Orange | White | Red | Green deriving (Enum, Show, Eq, Ord)
 
+-- | Represents a single side of the Rubik's Cube
 data Side = Side {
     tl :: Color, tm :: Color, tr :: Color,
     ml :: Color, mm :: Color, mr :: Color,
     bl :: Color, bm :: Color, br :: Color
 } deriving Show
 
+-- | Represents a single cubie (corner or edge piece) of the Rubik's Cube
 newtype ColorCubie = ColorCubie [Color] deriving (Show)
 
--- Check if they have the same colors
+-- | Equality for ColorCubie is defined by having the same colors, regardless of order
 instance Eq ColorCubie where
     (ColorCubie c1) == (ColorCubie c2) = sort c1 == sort c2
 
-
+-- | Convert a Side to a list of Colors
 toListSide :: Side -> [Color]
 toListSide (Side tl_ tm_ tr_ ml_ mm_ mr_ bl_ bm_ br_) = [tl_, tm_, tr_, ml_, mm_, mr_, bl_, bm_, br_]
 
+-- | Represents the entire Rubik's Cube
 data Cube = Cube {
     back :: Side,
     top :: Side,
@@ -40,14 +44,11 @@ data Cube = Cube {
     bottom :: Side
 } deriving Show
 
+-- | Convert a Cube to a list of Sides
 toListCube :: Cube -> [Side]
 toListCube (Cube back_ top_ left_ front_ right_ bottom_) = [back_, top_, left_, front_, right_, bottom_]
 
-
-{-
-Front to back from top left row major order
-Each cubie colors are in this order: front, back, top, bottom, left, right
--}
+-- | Extract all cubies from the Cube
 getCubies :: Cube -> [ColorCubie]
 getCubies (Cube bk tp lt fr rt bt) = 
     let
@@ -75,8 +76,7 @@ getCubies (Cube bk tp lt fr rt bt) =
 
     in map ColorCubie cubieColors
 
-
--- Function to rotate a Side clockwise
+-- | Rotate a Side clockwise
 rotateSideC :: Side -> Side
 rotateSideC s = Side {
     tl = bl s, tm = ml s, tr = tl s,
@@ -84,11 +84,11 @@ rotateSideC s = Side {
     bl = br s, bm = mr s, br = tr s
 }
 
--- Function to rotate a Side counterclockwise
+-- | Rotate a Side counterclockwise
 rotateSideCC :: Side -> Side
 rotateSideCC side = rotateSideC $ rotateSideC $ rotateSideC side
 
--- Function to modify the right column from another side's right column
+-- | Modify the right column of a Side from another Side's right column
 changeRightFrom :: Side -> Side -> Side
 changeRightFrom s1 s2 = Side {
     tl = tl s1, tm = tm s1, tr = tr s2,
@@ -96,7 +96,7 @@ changeRightFrom s1 s2 = Side {
     bl = bl s1, bm = bm s1, br = br s2
 }
 
--- Function to perform an R move on the cube (rotates the right side and adjusts adjacent faces)
+-- | Perform an R move on the cube (rotate right face clockwise)
 rMove :: Cube -> Cube
 rMove c = Cube {
     back = changeRightFrom (back c) (top c),
@@ -107,7 +107,7 @@ rMove c = Cube {
     bottom = changeRightFrom (bottom c) (back c)
 }
 
--- Modify the middle column from another side's middle column
+-- | Modify the middle column of a Side from another Side's middle column
 changeMiddleFrom :: Side -> Side -> Side
 changeMiddleFrom s1 s2 = Side {
     tl = tl s1, tm = tm s2, tr = tr s1,
@@ -115,7 +115,7 @@ changeMiddleFrom s1 s2 = Side {
     bl = bl s1, bm = bm s2, br = br s1
 }
 
--- Function to perform an M move on the cube (rotates the middle slice)
+-- | Perform an M move on the cube (rotate middle slice)
 mMove :: Cube -> Cube
 mMove c = Cube {
     back = changeMiddleFrom (back c) (top c),
@@ -126,7 +126,7 @@ mMove c = Cube {
     bottom = changeMiddleFrom (bottom c) (back c)
 }
 
--- Function to rotate the entire cube clockwise
+-- | Rotate the entire cube clockwise around the Z-axis
 zRotation :: Cube -> Cube
 zRotation c = Cube {
     back = rotateSideCC (back c),
@@ -137,40 +137,47 @@ zRotation c = Cube {
     bottom = rotateSideC (right c)
 }
 
--- Simplifying moves (unnecessary for the solver)
+-- | Perform an L move on the cube (rotate left face clockwise)
 lMove :: Cube -> Cube
 lMove c = zRotation $ zRotation $ rMove $ zRotation $ zRotation c
 
--- function to reverse a move by doing it 3 times
+-- | Reverse a move by applying it three times
 prime :: (Cube -> Cube) -> Cube -> Cube
 prime f c = f $ f $ f c
 
+-- | Perform a U move on the cube (rotate top face clockwise)
 uMove :: Cube -> Cube
 uMove c = (prime zRotation) $ rMove $ zRotation c
 
+-- | Perform a D move on the cube (rotate bottom face clockwise)
 dMove :: Cube -> Cube
 dMove c = zRotation $ rMove $ (prime zRotation) c
 
+-- | Rotate the entire cube clockwise around the X-axis
 xRotation :: Cube -> Cube
 xRotation c = (prime lMove) $ rMove $ mMove c 
 
+-- | Rotate the entire cube clockwise around the Y-axis
 yRotation :: Cube -> Cube
 yRotation c = zRotation$ rMove $ mMove $ (prime lMove) $ (prime zRotation) c
 
+-- | Perform an F move on the cube (rotate front face clockwise)
 fMove :: Cube -> Cube
 fMove c = (prime yRotation) $ rMove $ yRotation c
 
+-- | Perform a B move on the cube (rotate back face clockwise)
 bMove :: Cube -> Cube
 bMove c = (yRotation) $ rMove $ (prime yRotation) c
 
--- Check if a side is one color
+-- | Check if a Side is all one color
 isOneColor :: Side -> Bool
 isOneColor s = all (== tl s) [tm s, tr s, ml s, mm s, mr s, bl s, bm s, br s]
 
--- Check if the entire cube is solved
+-- | Check if the entire Cube is solved
 isSolved :: Cube -> Bool
 isSolved c = all isOneColor [back c, top c, left c, front c, right c, bottom c]
 
+-- | A solved Rubik's Cube
 solvedCube :: Cube
 solvedCube = Cube {
     back = Side {tl = Yellow, tm = Yellow, tr = Yellow, ml = Yellow, mm = Yellow, mr = Yellow, bl = Yellow, bm = Yellow, br = Yellow},
@@ -181,12 +188,13 @@ solvedCube = Cube {
     bottom = Side {tl = Green, tm = Green, tr = Green, ml = Green, mm = Green, mr = Green, bl = Green, bm = Green, br = Green}
 }
 
+-- | Represents a move on the Rubik's Cube
 data Move = Move { 
     move :: Cube -> Cube,
     name :: String
 }
 
-
+-- | List of all possible moves on a Rubik's Cube
 possibleMoves :: [Move]
 possibleMoves = [
     Move {move = rMove, name = "R"},
@@ -208,54 +216,61 @@ possibleMoves = [
     Move {move = (bMove . bMove), name = "B2"},
     Move {move = (fMove . fMove), name = "F2"}]
 
+-- | Apply a move to a Cube given the move name
 applyMove :: Cube -> String -> Cube
 applyMove c moveName = moveFunction c
     where
         moveFunction = move $ head $ filter (\m -> name m == moveName) possibleMoves
 
-
+-- | Get a random move
 getRandomMove :: IO Move
 getRandomMove = do
     index <- randomRIO (0, length possibleMoves - 1)
     return $ possibleMoves !! index
 
-
+-- | Apply a sequence of moves to a Cube
 applyMoves :: Cube -> [String] -> Cube
 applyMoves c moves = foldl applyMove c moves
 
+-- | Get a Cube from a sequence of moves starting from a solved state
 getCubeFromMoves :: [String] -> Cube
 getCubeFromMoves moves = applyMoves solvedCube moves
 
-{-
-Add 1 to the element at index x in the vector
--}
+-- | Increment the count for a specific color in a vector
 addToList :: V.Vector Int -> Color -> V.Vector Int
 addToList vec color = vec V.// [(cid, (vec V.! cid) + 1)]
     where
         cid = fromEnum color
 
+-- | Count the occurrences of each color on a Side
 countColors ::Side -> V.Vector Int
 countColors side = foldl (addToList) (V.replicate 6 0) (toListSide side)
 
+-- | Normalize a vector of counts to probabilities
 normalize :: V.Vector Int -> V.Vector Double
 normalize counts = V.map(/ totalSum) vecDouble
     where
         totalSum = fromIntegral (V.sum counts) :: Double
         vecDouble = V.map fromIntegral counts
 
+-- | Helper function for entropy calculation
 addLogProb :: Double -> Double -> Double
 addLogProb acc x 
     | x == 0 = acc
     | otherwise = acc + x * log x
 
+-- | Calculate the entropy of a normalized vector
 countEntropy :: V.Vector Double -> Double
 countEntropy counts = (foldl (addLogProb) 0 counts)
 
+-- | Calculate the entropy of a Side
 countSideEntropy :: Side -> Double
 countSideEntropy side = countEntropy (normalize (countColors side))
 
+-- | Calculate the total entropy of a Cube
 countCubeEntropy :: Cube -> Double
 countCubeEntropy cube = sum (map countSideEntropy (toListCube cube))
 
+-- | Evaluate the "scrambledness" of a Cube based on its entropy
 evaluate :: Cube -> Double
 evaluate c = countCubeEntropy c

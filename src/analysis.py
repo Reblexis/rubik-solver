@@ -4,18 +4,36 @@ import ast
 import random
 import time
 
-
 def build_rubik_solver():
+    """
+    Build the Rubik's Cube solver project using cabal.
+    
+    Returns:
+        int: The return code of the build process (0 if successful).
+    """
     build_process = subprocess.run(['cabal', 'build'], capture_output=True, text=True)
 
     if build_process.returncode != 0:
         print("Failed to build the project")
         print("stdout:", build_process.stdout)
         print("stderr:", build_process.stderr)
-        return build_process.returncode
-
+    return build_process.returncode
 
 def run_rubik_solver(moves, time_limit=1000, search_depth=3, search_depth_g1=5, random_moves_num=3):
+    """
+    Run the Rubik's Cube solver with specified parameters.
+    
+    Args:
+        moves (str): The sequence of moves to solve.
+        time_limit (int): Time limit for the solver in milliseconds.
+        search_depth (int): The search depth for the solver.
+        search_depth_g1 (int): The search depth for G1 phase.
+        random_moves_num (int): Number of random moves to apply.
+    
+    Returns:
+        tuple: (solution, score, duration) where solution is a list of moves,
+               score is the solver's performance metric, and duration is the execution time.
+    """
     # Step 1: Build the project
     
     ghc_version = "9.4.8" 
@@ -48,17 +66,36 @@ def run_rubik_solver(moves, time_limit=1000, search_depth=3, search_depth_g1=5, 
     
     return solution, score, duration
 
-
 def generate_shuffle(num_moves=20):
-    #POSSIBLE_SHUFFLE_MOVES = ["R2", "L2", "U", "D", "F2", "B2"]
+    """
+    Generate a random shuffle sequence for the Rubik's Cube.
+    
+    Args:
+        num_moves (int): Number of moves in the shuffle sequence.
+    
+    Returns:
+        str: A space-separated string of random moves.
+    """
     POSSIBLE_SHUFFLE_MOVES = ["R", "L", "U", "D", "F", "B", "RP", "LP", "UP", "DP", "FP", "BP"]
-
     shuffle = " ".join(random.choices(POSSIBLE_SHUFFLE_MOVES, k=num_moves))
-
     return shuffle
 
-
 def test_solver(time_limit, search_depth, search_depth_g1, random_moves_num, num_tests=100, num_moves=20):
+    """
+    Test the Rubik's Cube solver with multiple random shuffles.
+    
+    Args:
+        time_limit (int): Time limit for each solve attempt in milliseconds.
+        search_depth (int): The search depth for the solver.
+        search_depth_g1 (int): The search depth for G1 phase.
+        random_moves_num (int): Number of random moves to apply.
+        num_tests (int): Number of test cases to run.
+        num_moves (int): Number of moves in each shuffle sequence.
+    
+    Returns:
+        tuple: (avg_score, avg_solution_length, avg_duration) representing the
+               average performance metrics across all test cases.
+    """
     build_rubik_solver()
 
     scores = []
@@ -90,8 +127,5 @@ def test_solver(time_limit, search_depth, search_depth_g1, random_moves_num, num
 
     return avg_score, avg_solution_length, avg_duration
 
-
-
 # Example usage
-
 test_solver(500000, 6, 8, 6, num_tests=100, num_moves=100)
