@@ -1,5 +1,5 @@
 {-
-Cubie represantation of rubik's cube. The positions are id'd this way:
+Cubie representation of rubik's cube. The positions are id'd this way:
 - cube rotation: white on the front, blue on the top
 - center cubies ignored
 - from top left row-major order from front side to middle to back
@@ -14,37 +14,39 @@ import System.Random
 import qualified CubeColors
 import CubeColors (Color(..), ColorCubie)
 
+-- | Represents a single cubie with its position and rotation
 data Cubie = Cubie {
     position :: Int,
     rotation :: Int -- 0 - 2 (could be two bits)
 } deriving Show
 
+-- | Represents the entire Rubik's Cube as a list of cubies
 newtype Cube = Cube {
     cubies :: [Cubie]
 } deriving Show
 
+-- | Represents a solved Rubik's Cube
 solvedCube :: Cube
 solvedCube = Cube {
     cubies = map (`Cubie` 0) [0..19]
 }
 
-{-
-Where should the given cubie go and what should be added to rotation (mod 3 or 2).
--}
-
+-- | Represents a move for a single cubie
 data CubieMove = CubieMove {
     targetPosition :: Int,
     rotationAdd :: Int
 } deriving Show
 
+-- | Represents a move for the entire cube
 newtype Move = Move {
     cubieMoves :: Array Int CubieMove
 } deriving Show
 
+-- | Default color configuration of cubies
 defaultCubies :: [ColorCubie]
 defaultCubies = CubeColors.getCubies CubeColors.solvedCube
 
--- Check the position change of the first element in the first list
+-- | Calculate the rotation change for a cubie based on its color change
 getRotationAdd :: ColorCubie -> ColorCubie -> Int
 getRotationAdd (CubeColors.ColorCubie c1) (CubeColors.ColorCubie c2) =
     let
@@ -54,6 +56,7 @@ getRotationAdd (CubeColors.ColorCubie c1) (CubeColors.ColorCubie c2) =
         Just index -> index
         Nothing -> error "Color not found"
 
+-- | Find a cubie in the list of all cubies based on its color configuration
 findCubie :: ColorCubie -> [ColorCubie] -> Cubie
 findCubie colorCubie allCubies =
     let
@@ -63,6 +66,7 @@ findCubie colorCubie allCubies =
         Nothing -> error ("Cubie" ++ show colorCubie ++ "not found")
 
 
+-- | Convert a color-based cube representation to a cubie-based representation
 cubieFromColorCube :: CubeColors.Cube -> Cube
 cubieFromColorCube colorCube =
     let
@@ -70,6 +74,7 @@ cubieFromColorCube colorCube =
     in Cube $ map (`findCubie` colorCubies) defaultCubies
 
 
+-- | Apply a move to a single cubie
 applyCubieMove :: Cubie -> Move -> Cubie
 applyCubieMove cubie move =
     let
@@ -81,7 +86,7 @@ applyCubieMove cubie move =
         in
             Cubie newPosition newRotation
 
--- Applies different cubie move to each cubie depending on its position
+-- | Apply a move to the entire cube
 applyMove :: Cube -> Move -> Cube
 applyMove cube move =
     let
@@ -89,9 +94,7 @@ applyMove cube move =
     in
         Cube newCubies
 
-{-
-Returns move that transforms solved cube into the given cube.
--}
+-- | Generate a move that transforms a solved cube into the given cube state
 getTransformation :: Cube -> Move
 getTransformation cube =
     let
@@ -100,19 +103,17 @@ getTransformation cube =
         Move $ listArray (0, 19) cubieMoves
 
 
+-- | Convert a color-based move to a cubie-based move
 cubieFromColorMove :: (CubeColors.Cube -> CubeColors.Cube) -> Move
 cubieFromColorMove colorMove = getTransformation $ cubieFromColorCube $ colorMove CubeColors.solvedCube
 
-{-
-Move definitions.
-
-Memoization optimizes this.
--}
+-- | Represents a named move with its corresponding Move and string representation
 data NamedMove = NamedMove {
     move :: Move,
     name :: String
 } deriving Show
 
+-- Move definitions (r, l, u, d, b, f, rPrime, lPrime, etc.)
 r :: NamedMove
 r = NamedMove {move = cubieFromColorMove CubeColors.rMove, name = "R"}
 
@@ -168,31 +169,31 @@ f2 :: NamedMove
 f2 = NamedMove {move = cubieFromColorMove (CubeColors.fMove . CubeColors.fMove), name = "F2"}
 
 
+-- | List of all possible moves
 possibleMoves :: [NamedMove]
 possibleMoves = [r, l, u, d, b, f, rPrime, lPrime, uPrime, dPrime, bPrime, fPrime, r2, l2, u2, d2, b2, f2]
 
+-- | List of possible moves in the G1 subgroup
 possibleMovesG1 :: [NamedMove]
 possibleMovesG1 = [r2, l2, u, uPrime, u2, d, dPrime, d2, f2, b2]
 
+-- | Get a random move from a list of possible moves
 getRandomMove :: [NamedMove] -> IO NamedMove
 getRandomMove moves = do
     index <- randomRIO (0, length moves - 1)
     return $ moves !! index
 
 
--- Cubies that are at the same position as their index and their rotation is 0
+-- | Count the number of cubies that are in their correct position and orientation
 countCorrectCubies :: Cube -> Int
 countCorrectCubies (Cube cubies) = length $ filter (\(cubie, index) -> position cubie == index && rotation cubie == 0) (zip cubies [0..19])
 
 
+-- | List of indices representing the U-D slice of the cube
 uDSlice :: [Int]
 uDSlice = [9, 10, 17, 18]
 
-{- 
-Check if the cube is in G1 subset. This means that all cubies are correctly rotated (rotation 0) and the u-d slice edge are only in that slice.
--}
-
+-- | Check if the cube is in the G1 subset
+-- This means that all cubies are correctly rotated (rotation 0) and the U-D slice edges are only in that slice.
 isG1 :: Cube -> Bool
 isG1 (Cube cubies) = all (\cubie -> rotation cubie == 0) cubies && all (\(cubie, index) -> notElem index uDSlice || elem (position cubie) uDSlice) (zip cubies [0..19])
-
-

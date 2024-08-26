@@ -1,3 +1,4 @@
+-- | Represents negative infinity as a Double
 
 module Solver where
 
@@ -11,20 +12,24 @@ import CubeCubies
 import Data.Type.Equality (apply)
 
 
+-- | Represents negative infinity as a Double
 negativeInfinity :: Double
 negativeInfinity = -(1.0 / 0)
 
+-- | Selects the best state from a list of states based on score and depth
 selectBest :: [([String], Double, Int, Cube)] -> ([String], Double, Int, Cube)
 selectBest = maximumBy compareStates
   where
     compareStates (_, score1, depth1, _) (_, score2, depth2, _) =
       compare score1 score2 <> compare depth2 depth1
 
+-- | Evaluates a single cubie based on its position and rotation
 evaluateCubie :: Cubie -> Int -> Int
 evaluateCubie cubie pos 
     | position cubie == pos && rotation cubie == 0 = 3
     | otherwise = 0
 
+-- | Evaluates the entire cube state
 evaluate :: Cube -> Double
 evaluate cube
     | isG1 cube= 100.0 + cubieMetric
@@ -33,6 +38,7 @@ evaluate cube
         cubieMetric = fromIntegral(sum $ zipWith evaluateCubie (cubies cube) [0..19])
     
 
+-- | Determines if a move should be pruned based on the previous moves
 pruneMove :: String -> [String] -> Bool
 pruneMove _ [] = False
 pruneMove moveNotation moves
@@ -48,6 +54,7 @@ pruneMove moveNotation moves
 
 
 {-# LANGUAGE BangPatterns #-}
+-- | Finds the best moves for the current cube state within the given depth limit and time constraint
 findMoves :: Cube -> Int -> Int -> [String] -> Clock.TimeSpec -> IO ([String], Double, Int, Cube)
 findMoves cube depth limit moves endTime = do
     currentTime <- Clock.getTime Clock.Monotonic
@@ -81,6 +88,7 @@ findMoves cube depth limit moves endTime = do
                 findMoves newCube (depth + 1) limit newMoves endTime
 
 
+-- | Performs a specified number of random moves on the cube
 doNRandomMoves :: Cube -> [String] -> Int -> IO (Cube, [String])
 doNRandomMoves cube moves 0 = return (cube, moves)
 doNRandomMoves cube moves n = do
@@ -90,6 +98,7 @@ doNRandomMoves cube moves n = do
     doNRandomMoves newCube newMoves (n - 1)
 
 
+-- | Solves the cube until an improvement is found or time runs out
 solveUntilImprovement :: Cube -> [String] -> Double -> Clock.TimeSpec -> Int -> Int -> Int -> IO (Double, [String], Clock.TimeSpec)
 solveUntilImprovement cube moves lastScore endTime searchDepth searchDepthG1 randomMovesNum =
     do
@@ -126,9 +135,11 @@ solveUntilImprovement cube moves lastScore endTime searchDepth searchDepthG1 ran
                         
 
 
+-- | Adds nanoseconds to a TimeSpec
 addNanoSecs :: Clock.TimeSpec -> Integer -> Clock.TimeSpec
 addNanoSecs (Clock.TimeSpec s ns) nsecs = Clock.TimeSpec s (ns + fromIntegral nsecs)
 
+-- | Main function to find a solution for the given cube state
 findSolution :: Cube -> Integer -> Int -> Int -> Int -> IO [String]
 findSolution cube timeLimit searchDepth searchDepthG1 randomMovesNum = do
     startTime <- Clock.getTime Clock.Monotonic
@@ -138,7 +149,6 @@ findSolution cube timeLimit searchDepth searchDepthG1 randomMovesNum = do
     hPutStrLn stderr $ "Final score: " ++ show score
 
     return moves
-
 
 -- Basic test example: solveUntilImprovement (rMove$rMove$rMove solvedCube) [] 0
 
