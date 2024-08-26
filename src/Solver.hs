@@ -26,7 +26,7 @@ selectBest = maximumBy compareStates
 -- | Evaluates a single cubie based on its position and rotation
 evaluateCubie :: Cubie -> Int -> Int
 evaluateCubie cubie pos 
-    | position cubie == pos && rotation cubie == 0 = 3
+    | position cubie == pos && rotation cubie == 0 = 1
     | otherwise = 0
 
 -- | Evaluates the entire cube state
@@ -111,7 +111,7 @@ solveUntilImprovement cube moves lastScore endTime searchDepth searchDepthG1 ran
             then do
                 return (lastScore, moves, Clock.diffTimeSpec currentTime endTime)
             else do
-                if score >= 160.0
+                if score >= 120.0
                     then do
                         return (score, bestMoves, Clock.diffTimeSpec currentTime endTime)
                 else
