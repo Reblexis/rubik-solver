@@ -1,0 +1,34 @@
+\documentclass{article}
+\usepackage{amsmath}
+
+\title{Zkoumání parametrů řešiče Rubikovy kostky}
+\author{Viktor Číhal}
+\date{}
+
+
+\begin{document}
+\maketitle
+
+\section*{Popis řešiče}
+\subsection*{Algoritmus}
+Řešič funguje na základě opakovaného prohledávání stavového prostoru metodou DFS s dodatečným přidáváním náhodných tahů, pokud není nalezen zlepšující
+stav kostky. K rozhodnutí o tom, zda je nalezen zlepšující stav, se používá metrika, počítající správné kostičky v kostce. 
+Hledání je rozděleno do 2 fází. V první fázi se hledá řešení, které dostane kostku do podgrupy G1 a ve druhé fázi se pomocí menšího počtu
+různých tahů hledá již úplné řešení.
+
+\subsection*{Parametry}
+Při spouštění lze nastavovat tyto parametry:
+\begin{itemize}
+    \item Tahy zamíchání kostky
+    \item Časový limit pro hledání řešení
+    \item Maximální hloubka hledání v první fázi
+    \item Maximální hloubka hledání ve druhé fázi (může být větší díky větvícímu faktoru)
+    \item Počet náhodných tahů při nenalezení zlepšujícího stavu
+\end{itemize}
+
+
+
+
+
+
+\end{document}
