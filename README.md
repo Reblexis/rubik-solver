@@ -1,6 +1,6 @@
 # Rubik solver
 
-Solver for rubik's cube made in  haskell. 
+Solver for rubik's cube made in Haskell. 
 
 Papers used for inspiration:
 https://www.cs.princeton.edu/courses/archive/fall06/cos402/papers/korfrubik.pdf.
