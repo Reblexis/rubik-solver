@@ -2,9 +2,9 @@ module Main where
 
 import System.Environment (getArgs)
 
-import CubeColors (getCubeFromMoves, applyMoves, evaluate)
+import CubeColors (getCubeFromMoves, applyMoves)
 import CubeCubies (cubieFromColorCube)
-import Solver (findSolution)
+import Solver (findSolution, evaluate)
 
 {-| 
 The main entry point for the Rubik's Cube solver program.
@@ -32,7 +32,7 @@ main = do
             solution <- findSolution cubieCube (read timeLimit) (read searchDepth) (read searchDepthG1)
                                     
             let finalCube = applyMoves colorCube solution
-            let score = evaluate finalCube
+            let score = evaluate (cubieFromColorCube finalCube)
 
             putStrLn $ "Solution: " ++ show solution
             putStrLn $ "Achieved score: " ++ show score
