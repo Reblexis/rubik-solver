@@ -18,7 +18,7 @@ The solver employs the following strategies:
 
 6. **Random moves for escaping local optima**: When the search fails to find an improving move, the solver applies a series of random moves to escape potential local optima.
 
-The main search function (`findMoves`) explores the move space up to the specified depth limit, evaluating cube states and selecting the best moves based on the heuristic function. If an improvement is found, the search continues from the new state. If no improvement is found within the time limit, the solver applies random moves and tries again.
+The main search function (`findMoves`) explores the move space up to the specified depth limit, evaluating cube states and selecting the best moves based on the heuristic function. If an improvement is found, the search continues from the new state. If no improvement is found within the specified depth, the solver applies random moves and tries again.
 
 This process repeats until either a solution is found (cube is solved) or the time limit is reached.
 
