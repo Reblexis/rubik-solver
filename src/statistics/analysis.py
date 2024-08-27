@@ -19,7 +19,7 @@ def build_rubik_solver():
         print("stderr:", build_process.stderr)
     return build_process.returncode
 
-def run_rubik_solver(moves, time_limit=1000, search_depth=3, search_depth_g1=5, random_moves_num=3):
+def run_rubik_solver(moves, time_limit=1000, search_depth=3, search_depth_g1=5):
     """
     Run the Rubik's Cube solver with specified parameters.
     
@@ -43,7 +43,7 @@ def run_rubik_solver(moves, time_limit=1000, search_depth=3, search_depth_g1=5, 
 
     executable_path = f'dist-newstyle/build/x86_64-linux/ghc-{ghc_version}/{package_name}-{package_version}/x/{executable_name}/build/{executable_name}/{executable_name}'
 
-    args = [moves, str(time_limit), str(search_depth), str(search_depth_g1), str(random_moves_num)]
+    args = [moves, str(time_limit), str(search_depth), str(search_depth_g1)]
 
     start_time = time.time()
     run_process = subprocess.run(
@@ -80,7 +80,7 @@ def generate_shuffle(num_moves=20):
     shuffle = " ".join(random.choices(POSSIBLE_SHUFFLE_MOVES, k=num_moves))
     return shuffle
 
-def test_solver(time_limit, search_depth, search_depth_g1, random_moves_num, num_tests=100, num_moves=20):
+def test_solver(time_limit, search_depth, search_depth_g1, num_tests=100, num_moves=20):
     """
     Test the Rubik's Cube solver with multiple random shuffles.
     
@@ -88,7 +88,6 @@ def test_solver(time_limit, search_depth, search_depth_g1, random_moves_num, num
         time_limit (int): Time limit for each solve attempt in milliseconds.
         search_depth (int): The search depth for the solver.
         search_depth_g1 (int): The search depth for G1 phase.
-        random_moves_num (int): Number of random moves to apply.
         num_tests (int): Number of test cases to run.
         num_moves (int): Number of moves in each shuffle sequence.
     
@@ -108,7 +107,7 @@ def test_solver(time_limit, search_depth, search_depth_g1, random_moves_num, num
         shuffle = generate_shuffle(num_moves=num_moves)
         print(f"Test {i + 1}/{num_tests}")
         print(f"Shuffle: {shuffle}")
-        solution, score, duration = run_rubik_solver(shuffle, time_limit, search_depth, search_depth_g1, random_moves_num)
+        solution, score, duration = run_rubik_solver(shuffle, time_limit, search_depth, search_depth_g1)
         best_solution = max(best_solution, (solution, score), key=lambda x: x[1])
         print(f"solution: {solution}, score: {score}, duration: {duration}")
         scores.append(score)
@@ -128,4 +127,4 @@ def test_solver(time_limit, search_depth, search_depth_g1, random_moves_num, num
     return avg_score, avg_solution_length, avg_duration
 
 # Example usage
-test_solver(500000, 6, 8, 6, num_tests=100, num_moves=100)
+test_solver(1000, 4, 5, num_tests=100, num_moves=5)
