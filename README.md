@@ -54,7 +54,7 @@ The program will output the solution moves and the achieved score.
 
 ### Example:
 ```
-cabal run "R LP U D" 500000 6 8
+cabal run "R LP U D2" 500000 6 8
 ```
 
 
