@@ -4,7 +4,7 @@ import System.Environment (getArgs)
 
 import CubeColors (getCubeFromMoves, applyMoves)
 import CubeCubies (cubieFromColorCube)
-import Solver (findSolution, evaluate)
+import Solver (findSolution, cubieMetric)
 
 {-| 
 The main entry point for the Rubik's Cube solver program.
