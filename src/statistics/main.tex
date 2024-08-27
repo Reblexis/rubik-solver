@@ -27,7 +27,7 @@ různých tahů (a tedy i větší hloubky) hledá již úplné řešení.\\
 Při spouštění lze nastavovat tyto parametry:
 \begin{itemize}
     \item Počet tahů zamíchání kostky ($n$)
-    \item Časový limit pro hledání řešení ($t$)
+    \item Časový limit pro hledání řešení (v milisekundách) ($t$)
     \item Maximální hloubka hledání v první fázi ($d1$)
     \item Maximální hloubka hledání ve druhé fázi ($d2$)
 \end{itemize}
@@ -35,8 +35,16 @@ Při spouštění lze nastavovat tyto parametry:
 Více informací se nachází v \href{https://github.com/Reblexis/rubik-solver/blob/main/README.md}{README.md} souboru.
 
 \section*{Experimenty}
-\subsection*{Vliv počtu náhodných tahů při nenalezení zlepšujícího stavu}
+Nejprve provedeme experimenty s časovým omezením na 1 sekundu. Sice to povede k menšímu počtu úplných
+řešení, ale umožní nám rychlejší sběr dat. 
 
+\subsection*{Vliv počtu tahů při míchání na dosažené skóre}
+Rozhodl jsem se prozkoumat tento vztah, neboť se hodí vědět kolik stačí tahů při míchání, aby byla kostka
+dostatečně náhodná. \\
+Skóre je určeno stejně jakou použitá metrika, která počítá správné kostičky v kostce.
+Pokud se ale podaří dostat kostku do podgrupy G1 je dodatečně přičteno 100 bodů.
+Pro každou testovanou hodnotu $n$ spustíme 100 testů a ostatní parametry fixujeme na
+$t = 1000$, $d1 = 4$ a $d2 = 5$.
 
 
 

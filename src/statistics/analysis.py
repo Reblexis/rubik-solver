@@ -41,7 +41,9 @@ def run_rubik_solver(moves, time_limit=1000, search_depth=3, search_depth_g1=5):
     package_version = "0.1.0.0" 
     executable_name = "rubik-solver"
 
-    executable_path = f'dist-newstyle/build/x86_64-linux/ghc-{ghc_version}/{package_name}-{package_version}/x/{executable_name}/build/{executable_name}/{executable_name}'
+    project_path = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir))
+
+    executable_path = f'{project_path}/dist-newstyle/build/x86_64-linux/ghc-{ghc_version}/{package_name}-{package_version}/x/{executable_name}/build/{executable_name}/{executable_name}'
 
     args = [moves, str(time_limit), str(search_depth), str(search_depth_g1)]
 
@@ -77,7 +79,13 @@ def generate_shuffle(num_moves=20):
         str: A space-separated string of random moves.
     """
     POSSIBLE_SHUFFLE_MOVES = ["R", "L", "U", "D", "F", "B", "RP", "LP", "UP", "DP", "FP", "BP"]
-    shuffle = " ".join(random.choices(POSSIBLE_SHUFFLE_MOVES, k=num_moves))
+    shuffle = []
+    for i in range(num_moves):
+        move = random.choice(POSSIBLE_SHUFFLE_MOVES)
+        while len(shuffle) > 0 and shuffle[-1][0] == move[0]:
+            move = random.choice(POSSIBLE_SHUFFLE_MOVES)
+        shuffle.append(move)
+    shuffle = " ".join(shuffle)
     return shuffle
 
 def test_solver(time_limit, search_depth, search_depth_g1, num_tests=100, num_moves=20):
@@ -126,5 +134,5 @@ def test_solver(time_limit, search_depth, search_depth_g1, num_tests=100, num_mo
 
     return avg_score, avg_solution_length, avg_duration
 
-# Example usage
-test_solver(1000, 4, 5, num_tests=100, num_moves=5)
+if __name__ == "__main__":
+    test_solver(1000, 4, 5, num_tests=100, num_moves=5)
