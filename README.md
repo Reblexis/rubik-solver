@@ -1,6 +1,7 @@
 # Rubik's Cube Solver
 
 This is a Rubik's Cube solver implemented in Haskell. It uses a heuristic-based search algorithm with time constraints to find solutions for scrambled Rubik's Cubes.
+No use of pattern databases or extensive precomputation.
 
 ## Algorithm Overview
 
@@ -34,7 +35,6 @@ While not directly implementing any specific algorithm from it, this solver was 
 
 ## Limitations
 
-- The solver does not use pattern databases or extensive precomputation.
 - It does not guarantee finding the optimal (shortest) solution.
 - Performance may vary depending on the initial scramble and the chosen time limit.
 
@@ -54,7 +54,7 @@ The program will output the solution moves and the achieved score.
 
 ### Example:
 ```
-cabal run "R LP U D" 500000 6 8
+cabal run "R LP U D2" 500000 6 8
 ```
 
 
