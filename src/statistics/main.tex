@@ -1,6 +1,7 @@
 \documentclass{article}
 \usepackage{amsmath}
 \usepackage{hyperref}
+\usepackage{graphicx}  % Add this line to include the graphicx package
 
 \title{Zkoumání parametrů řešiče Rubikovy kostky}
 \author{Viktor Číhal}
@@ -40,11 +41,26 @@ Nejprve provedeme experimenty s časovým omezením na 1 sekundu. Sice to povede
 
 \subsection*{Vliv počtu tahů při míchání na dosažené skóre}
 Rozhodl jsem se prozkoumat tento vztah, neboť se hodí vědět kolik stačí tahů při míchání, aby byla kostka
-dostatečně náhodná. \\
+`dostatečně náhodná'. \\
 Skóre je počítáno jako počet správně umístěných kostiček v kostce (tedy na správné pozici a zároveň správně otočených).
-Pro každou testovanou hodnotu $n$ spustíme 100 testů a ostatní parametry fixujeme na
-$t = 1000$, $d1 = 4$ a $d2 = 5$.
+Pro každou testovanou hodnotu $n$ spustíme 100 testů a ostatní parametry zafixujeme na
+$t = 1000$, $d1 = 4$ a $d2 = 5$.\\
+Algoritmus sice řeší kostku jiným způsobem než člověk, ale je založený na podobném principu 
+postupného přesouvání kostiček na správné pozice.
 
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{scramble_moves_influence.png}
+    \caption{Vliv počtu tahů při míchání na dosažené skóre}
+    \label{fig:scramble_moves_influence}
+\end{figure}
+
+Z grafu můžem vypozorovat, že od 15 míchacích tahů již dosažené skóre přestává klesat. 
+Jelikož je maximální možný počet tahů k nejkratšímu vyřešení kostky 20 (God's Number),
+po 15 tazích se nedostaneme do všech stavů kostky, ale pro amatéry v řešení by mohl být tento počet
+postačující.\\
+Raději ale tuto hypotézu otestujeme pro větší časové omezení a větší hloubky prohledávání.
+Spustíme tedy 50 testů jednotlivě pro hodnoty $n = 15$ a $n = 50$ a zafixujeme $t = 150000$, $d1 = 6$ a $d2 = 8$.
 
 
 
