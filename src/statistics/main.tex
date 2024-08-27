@@ -1,5 +1,6 @@
 \documentclass{article}
 \usepackage{amsmath}
+\usepackage{hyperref}
 
 \title{Zkoumání parametrů řešiče Rubikovy kostky}
 \author{Viktor Číhal}
@@ -8,13 +9,19 @@
 
 \begin{document}
 \maketitle
+\section*{Úvod}
+V této práci jsem se rozhodl zkoumat určité parametry svého řešiče Rubikovy kostky.
+Zdrojový kód a notebook s experimenty se dá nalézt na \url{https://github.com/Reblexis/rubik-solver}.
 
 \section*{Popis řešiče}
 \subsection*{Algoritmus}
-Řešič funguje na základě opakovaného prohledávání stavového prostoru metodou DFS s dodatečným přidáváním náhodných tahů, pokud není nalezen zlepšující
-stav kostky. K rozhodnutí o tom, zda je nalezen zlepšující stav, se používá metrika, počítající správné kostičky v kostce. 
-Hledání je rozděleno do 2 fází. V první fázi se hledá řešení, které dostane kostku do podgrupy G1 a ve druhé fázi se pomocí menšího počtu
-různých tahů hledá již úplné řešení.
+Řešič funguje na základě opakovaného prohledávání stavového prostoru metodou DFS
+s dodatečným přidáváním náhodných tahů, pokud není nalezen zlepšující stav kostky.
+K rozhodnutí o tom, zda je nalezen zlepšující stav, se používá metrika, počítající
+správné kostičky v kostce. Hledání je rozděleno do 2 fází. V první fázi se hledá
+řešení, které dostane kostku do podgrupy G1 a ve druhé fázi se pomocí menšího počtu
+různých tahů (a tedy i větší hloubky) hledá již úplné řešení.\\
+Řešič tedy většinou nenalezne nejkratší řešení.
 
 \subsection*{Parametry}
 Při spouštění lze nastavovat tyto parametry:
@@ -22,9 +29,11 @@ Při spouštění lze nastavovat tyto parametry:
     \item Počet tahů zamíchání kostky ($n$)
     \item Časový limit pro hledání řešení ($t$)
     \item Maximální hloubka hledání v první fázi ($d1$)
-    \item Maximální hloubka hledání ve druhé fázi (může být větší díky větvícímu faktoru) ($d2$)
+    \item Maximální hloubka hledání ve druhé fázi ($d2$)
     \item Počet náhodných tahů při nenalezení zlepšujícího stavu ($r$)
 \end{itemize}
+
+Více informací se nachází v \href{https://github.com/Reblexis/rubik-solver/blob/main/README.md}{README.md} souboru.
 
 
 

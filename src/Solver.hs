@@ -1,5 +1,3 @@
--- | Represents negative infinity as a Double
-
 module Solver where
 
 import qualified Data.Vector as V
@@ -149,16 +147,3 @@ findSolution cube timeLimit searchDepth searchDepthG1 randomMovesNum = do
     hPutStrLn stderr $ "Final score: " ++ show score
 
     return moves
-
--- Basic test example: solveUntilImprovement (rMove$rMove$rMove solvedCube) [] 0
-
--- Current cube state, maximum depth, current depth, and a solution
-{-
-findSolutionIterative :: Cube -> Int -> Int -> ([String], Int)
-findSolutionIterative cube maxDepth depth
-    | depth > maxDepth = ([], -1)
-    | otherwise = 
-        let moves = findMoves cube depth []
-        in if null moves then findSolutionIterative cube maxDepth (depth + 1) else moves
-
--}
