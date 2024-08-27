@@ -12,7 +12,7 @@ The solver employs the following strategies:
 
 3. **Depth-limited search**: The search is performed up to a certain depth, which is different for the general case and the G1 subgroup.
 
-4. **G1 subgroup awareness**: The solver recognizes when the cube reaches the G1 subgroup (all cubies correctly oriented, and U-D slice edges in the correct slice) and switches to a more focused search strategy with a reduced move set.
+4. **G1 subgroup awareness**: The solver recognizes when the cube reaches the G1 subgroup (all cubies correctly oriented, and U-D slice edges in the correct slice) and switches to a more focused search strategy with a reduced move set. More about G1 subgroup in this [wikipedia article](https://en.wikipedia.org/wiki/Optimal_solutions_for_the_Rubik%27s_Cube) (there under G2).
 
 5. **Move pruning**: Certain moves are pruned to reduce the search space, such as avoiding consecutive moves on the same face or opposite faces.
 
@@ -25,8 +25,7 @@ This process repeats until either a solution is found (cube is solved) or the ti
 ## Implementation Details
 
 - The cube is represented using a cubie-based model, where each cubie has a position and orientation.
-- Moves are represented as transformations on the cube state.
-- The solver uses different move sets for the general case and the G1 subgroup to optimize the search.
+- Moves are represented as transformations to individual cubies (position to position mapping and rotation changes).
 
 ## Inspiration
 
