@@ -12,7 +12,7 @@ import Data.Array
 import System.Random
 
 import qualified CubeColors
-import CubeColors (Color(..), ColorCubie)
+import CubeColors (ColorCubie)
 
 -- | Represents a single cubie with its position and rotation
 data Cubie = Cubie {

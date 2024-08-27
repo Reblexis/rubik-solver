@@ -49,14 +49,13 @@ cabal run rubik-solver <shuffle> <time_limit> <search_depth> <search_depth_g1> <
 2. Time limit: Maximum time allowed for solving (in milliseconds).
 3. Search depth: Maximum depth for the search algorithm.
 4. Search depth G1: Maximum depth for the G1 phase of the search.
-5. Random moves number: Number of random moves to apply before solving.
 
 The program will output the solution moves and the achieved score.
 
 
 ### Example:
 ```
-cabal run "R LP U D" 500000 6 8 6
+cabal run "R LP U D" 500000 6 8
 ```
 
 
