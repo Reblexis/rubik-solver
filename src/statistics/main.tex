@@ -41,8 +41,7 @@ Nejprve provedeme experimenty s časovým omezením na 1 sekundu. Sice to povede
 \subsection*{Vliv počtu tahů při míchání na dosažené skóre}
 Rozhodl jsem se prozkoumat tento vztah, neboť se hodí vědět kolik stačí tahů při míchání, aby byla kostka
 dostatečně náhodná. \\
-Skóre je určeno stejně jakou použitá metrika, která počítá správné kostičky v kostce.
-Pokud se ale podaří dostat kostku do podgrupy G1 je dodatečně přičteno 100 bodů.
+Skóre je počítáno jako počet správně umístěných kostiček v kostce (tedy na správné pozici a zároveň správně otočených).
 Pro každou testovanou hodnotu $n$ spustíme 100 testů a ostatní parametry fixujeme na
 $t = 1000$, $d1 = 4$ a $d2 = 5$.
 
