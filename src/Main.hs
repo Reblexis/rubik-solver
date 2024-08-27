@@ -32,7 +32,7 @@ main = do
             solution <- findSolution cubieCube (read timeLimit) (read searchDepth) (read searchDepthG1)
                                     
             let finalCube = applyMoves colorCube solution
-            let score = evaluate (cubieFromColorCube finalCube)
+            let score = cubieMetric (cubieFromColorCube finalCube)
 
             putStrLn $ "Solution: " ++ show solution
             putStrLn $ "Achieved score: " ++ show score

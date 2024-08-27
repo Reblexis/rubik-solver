@@ -24,14 +24,14 @@ evaluateCubie cubie pos
     | position cubie == pos && rotation cubie == 0 = 1
     | otherwise = 0
 
+cubieMetric :: Cube -> Double
+cubieMetric cube = fromIntegral(sum $ zipWith evaluateCubie (cubies cube) [0..19])
+
 -- | Evaluates the entire cube state
 evaluate :: Cube -> Double
 evaluate cube
-    | isG1 cube= 100.0 + cubieMetric
-    | otherwise = cubieMetric
-    where 
-        cubieMetric = fromIntegral(sum $ zipWith evaluateCubie (cubies cube) [0..19])
-    
+    | isG1 cube= 100.0 + cubieMetric cube
+    | otherwise = cubieMetric cube
 
 -- | Determines if a move should be pruned based on the previous moves
 pruneMove :: String -> [String] -> Bool
