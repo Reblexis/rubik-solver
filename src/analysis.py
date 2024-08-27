@@ -94,4 +94,4 @@ def test_solver(time_limit, search_depth, search_depth_g1, random_moves_num, num
 
 # Example usage
 
-test_solver(500000, 6, 8, 6, num_tests=100, num_moves=100)
+test_solver(500000, 6, 8, 6, num_tests=100, num_moves=10)
