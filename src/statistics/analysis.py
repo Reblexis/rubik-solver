@@ -132,7 +132,7 @@ def test_solver(time_limit, search_depth, search_depth_g1, num_tests=100, num_mo
     print(f"Average duration: {avg_duration}")
     print(f"Best solution: {best_solution[0]}, score: {best_solution[1]}")
 
-    return avg_score, avg_solution_length, avg_duration
+    return avg_score, avg_solution_length, avg_duration, scores, solution_lengths, durations
 
 if __name__ == "__main__":
-    test_solver(1000, 4, 5, num_tests=100, num_moves=5)
+    test_solver(300000, 6, 8, num_tests=100, num_moves=15)
