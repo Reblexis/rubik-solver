@@ -3,7 +3,7 @@
 \usepackage{hyperref}
 \usepackage{graphicx}  % Add this line to include the graphicx package
 
-\title{Zkoumání parametrů řešiče Rubikovy kostky}
+\title{Hledání dostatečného počtu tahů k zámíchání Rubikovy kostky}
 \author{Viktor Číhal}
 \date{}
 
@@ -11,7 +11,7 @@
 \begin{document}
 \maketitle
 \section*{Úvod}
-V této práci jsem se rozhodl zkoumat určité parametry svého řešiče Rubikovy kostky.
+V této práci jsem se rozhodl zkoumat vliv počtu tahů při míchání na dosažené skóre.
 Zdrojový kód a notebook s experimenty se dá nalézt na \url{https://github.com/Reblexis/rubik-solver}.
 
 \section*{Popis řešiče}
@@ -52,28 +52,28 @@ postupného přesouvání kostiček na správné pozice.
     \label{fig:scramble_moves_influence}
 \end{figure}
 
-Z grafu můžem vypozorovat, že 15 míchacích tahů nejspíš nestačí a od 20 míchacích
-tahů by již kostka mohla být dostatečně náhodná, 
-ale stále je nějaký rozdíl mezi 20 a více tahy zamíchání.\\
+Z grafu můžem vypozorovat, že 25 míchacích tahů nejspíš nestačí a od 30 míchacích
+tahů by již kostka mohla být dostatečně náhodná.
 Jelikož je maximální možný počet tahů k nejkratšímu vyřešení kostky 20 (God's Number),
-mohl by tento počet stačit.
+mohlo by 30 bohatě stačit.
 
 \subsection*{Test normality distribuce}
-Raději ale tuto hypotézu otestujeme. Nejprve provedeme test, zda mají distribuce skóre normální rozdělení.
+Raději ale tyto hypotézy otestujeme. Nejprve provedeme test, zda mají distribuce skóre normální rozdělení.
 Provedeme tedy Shapiro-Wilkův test s nulovou hypotézou, že data pocházejí z normálního rozdělení.\\
-Spustíme tedy 300-krát řešič jednotlivě pro hodnoty $n = 15$, $n = 20$ a $n = 50$ (což by již mělo být dostatečně náhodné) a zafixujeme $t = 100$, $d1 = 4$ a $d2 = 5$.
+Spustíme tedy 300-krát řešič jednotlivě pro hodnoty $n = 25$, $n = 30$ a $n = 100$ (což by již mělo být dostatečně náhodné) a zafixujeme $t = 100$, $d1 = 4$ a $d2 = 5$.
 Z testu nám vyšla p-hodnota výrazně menší než 0.05, což znamená, že zamítáme nulovou hypotézu a 
 můžeme tedy říct, že distribuce skóre není normální.\\
 
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.8\textwidth]{histogram_scores.png}
-    \caption{Histogram skóre pro $n = 15$, $n = 20$ a $n = 50$}
+    \caption{Histogram skóre pro $n = 25$, $n = 30$ a $n = 100$}
     \label{fig:histogram_scores}
 \end{figure}
 
 \subsection*{KS test}
 Jelikož distribuce není normální, použiji dvouvýběrový KS test.
+
 
 
 
