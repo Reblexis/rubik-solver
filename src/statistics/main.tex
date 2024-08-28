@@ -35,16 +35,13 @@ Při spouštění lze nastavovat tyto parametry:
 
 Více informací se nachází v \href{https://github.com/Reblexis/rubik-solver/blob/main/README.md}{README.md} souboru.
 
-\section*{Experimenty}
-Nejprve provedeme experimenty s časovým omezením na 1 sekundu. Sice to povede k menšímu počtu úplných
-řešení, ale umožní nám rychlejší sběr dat. 
-
-\subsection*{Vliv počtu tahů při míchání na dosažené skóre}
+\section*{Vliv počtu tahů při míchání na dosažené skóre}
 Rozhodl jsem se prozkoumat tento vztah, neboť se hodí vědět kolik stačí tahů při míchání, aby byla kostka
 `dostatečně náhodná'. \\
+\subsection*{Graf závislosti}
 Skóre je počítáno jako počet správně umístěných kostiček v kostce (tedy na správné pozici a zároveň správně otočených).
-Pro každou testovanou hodnotu $n$ spustíme 100 testů a ostatní parametry zafixujeme na
-$t = 1000$, $d1 = 4$ a $d2 = 5$.\\
+Pro každou testovanou hodnotu $n$ spustíme 100-krát řešič a ostatní parametry zafixujeme na
+$t = 100$, $d1 = 4$ a $d2 = 5$.\\
 Algoritmus sice řeší kostku jiným způsobem než člověk, ale je založený na podobném principu 
 postupného přesouvání kostiček na správné pozice.
 
@@ -55,12 +52,33 @@ postupného přesouvání kostiček na správné pozice.
     \label{fig:scramble_moves_influence}
 \end{figure}
 
-Z grafu můžem vypozorovat, že od 15 míchacích tahů již dosažené skóre přestává klesat. 
+Z grafu můžem vypozorovat, že 15 míchacích tahů nejspíš nestačí a od 20 míchacích
+tahů by již kostka mohla být dostatečně náhodná, 
+ale stále je nějaký rozdíl mezi 20 a více tahy zamíchání.\\
 Jelikož je maximální možný počet tahů k nejkratšímu vyřešení kostky 20 (God's Number),
-po 15 tazích se nedostaneme do všech stavů kostky, ale pro amatéry v řešení by mohl být tento počet
-postačující.\\
-Raději ale tuto hypotézu otestujeme pro větší časové omezení a větší hloubky prohledávání.
-Spustíme tedy 50 testů jednotlivě pro hodnoty $n = 15$ a $n = 50$ a zafixujeme $t = 150000$, $d1 = 6$ a $d2 = 8$.
+mohl by tento počet stačit.
+
+\subsection*{Test normality distribuce}
+Raději ale tuto hypotézu otestujeme. Nejprve provedeme test, zda mají distribuce skóre normální rozdělení.
+Provedeme tedy Shapiro-Wilkův test s nulovou hypotézou, že data pocházejí z normálního rozdělení.\\
+Spustíme tedy 300-krát řešič jednotlivě pro hodnoty $n = 15$, $n = 20$ a $n = 50$ (což by již mělo být dostatečně náhodné) a zafixujeme $t = 100$, $d1 = 4$ a $d2 = 5$.
+Z testu nám vyšla p-hodnota výrazně menší než 0.05, což znamená, že zamítáme nulovou hypotézu a 
+můžeme tedy říct, že distribuce skóre není normální.\\
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{histogram_scores.png}
+    \caption{Histogram skóre pro $n = 15$, $n = 20$ a $n = 50$}
+    \label{fig:histogram_scores}
+\end{figure}
+
+\subsection*{KS test}
+Jelikož distribuce není normální, použiji dvouvýběrový KS test.
+
+
+
+
+
 
 
 
