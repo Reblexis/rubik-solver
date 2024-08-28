@@ -1,6 +1,7 @@
 module Main where
 
 import System.Environment (getArgs)
+import System.IO (hPutStrLn, stderr)
 
 import CubeColors (getCubeFromMoves, applyMoves)
 import CubeCubies (cubieFromColorCube)
@@ -20,7 +21,6 @@ Example usage:
 cabal run "R LP U D" 30 20 12
 @
 -}
-{-# LANGUAGE BangPatterns #-}
 main :: IO ()
 main = do
     args <- getArgs
@@ -28,17 +28,17 @@ main = do
         [shuffle, timeLimit, searchDepth, searchDepthG1] -> do
             let moves = words shuffle  -- Split the shuffle into separate moves
 
-            let !colorCube = getCubeFromMoves moves
-            let !cubieCube = cubieFromColorCube colorCube
+            let colorCube = getCubeFromMoves moves
+            let cubieCube = cubieFromColorCube colorCube
 
             solution <- findSolution cubieCube (read timeLimit) (read searchDepth) (read searchDepthG1)
                                     
-            let !finalCube = applyMoves colorCube solution
-            let !score = cubieMetric (cubieFromColorCube finalCube)
+            let finalCube = applyMoves colorCube solution
+            let score = cubieMetric (cubieFromColorCube finalCube)
 
             putStrLn $ "Solution: " ++ show solution
             putStrLn $ "Achieved score: " ++ show score
             -- Uncomment the following line to print the final cube state
-            -- hPutStrLn stderr $ "Cube: " ++ show finalCube
+            hPutStrLn stderr $ "Cube: " ++ show finalCube
 
         _ -> putStrLn "Usage: cabal run \"MOVE1 MOVE2 MOVE3 ..\" <time_limit> <search_depth> <search_depth_g1>"
