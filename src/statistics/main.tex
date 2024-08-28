@@ -58,7 +58,7 @@ tahů by již kostka mohla být dostatečně náhodná pro lidské řešitele.\\
 Pojďme se ale ujistit, že 15 tahů opravdu není dostatečné.
 
 \subsection*{Test normality distribuce}
-Raději ale tyto hypotézy otestujeme. Nejprve provedeme test, zda mají distribuce skóre normální rozdělení.
+Nejprve provedeme test, zda mají distribuce skóre normální rozdělení.
 Provedeme tedy Shapiro-Wilkův test s nulovou hypotézou, že data pocházejí z normálního rozdělení.\\
 Spustíme 100-krát řešič jednotlivě pro hodnoty $n = 15$, $n = 20$ a $n = 50$ (což by již mělo být dostatečně náhodné)
 a zafixujeme $t = 100$, $d1 = 4$ a $d2 = 5$.\\
@@ -80,25 +80,25 @@ Pro pár $n = 20$ a $n = 50$ vyšlo $p=0.9084$, tedy hypotézu zamítnout nelze.
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.8\textwidth]{ks_test_15_50.png}
-    \caption{KS test pro $n = 15$ a $n = 50$}
-    \label{fig:ks_test_15_50}
+    \begin{minipage}{0.49\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{ks_test_15_50.png}
+        \caption{KS test pro $n = 15$ a $n = 50$}
+        \label{fig:ks_test_15_50}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.49\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{ks_test_20_50.png}
+        \caption{KS test pro $n = 20$ a $n = 50$}
+        \label{fig:ks_test_20_50}
+    \end{minipage}
 \end{figure}
 
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=0.8\textwidth]{ks_test_20_50.png}
-    \caption{KS test pro $n = 20$ a $n = 50$}
-    \label{fig:ks_test_20_50}
-\end{figure}
-
-
-
-
-
-
-
-
-
+\subsection*{Závěr a limitace}
+Vyšlo nám, že pro dostatečnou náhodnost kostky potřebujeme alespoň 20 náhodných tahů.
+Je ale důležité zmínit, že není zaručeno, že se dají výsledky zobecnit pro lidské řešitele případně jiné algoritmy.
+Například se jistě nejedná o dostatečný počet pro řešiče hledající nejkratší řešení,
+neboť ty mohou být dlouhé i 20 tahů.
 
 \end{document}
