@@ -135,4 +135,4 @@ def test_solver(time_limit, search_depth, search_depth_g1, num_tests=100, num_mo
     return avg_score, avg_solution_length, avg_duration, scores, solution_lengths, durations
 
 if __name__ == "__main__":
-    test_solver(100, 4, 5, num_tests=100, num_moves=300)
+    test_solver(100, 4, 5, num_tests=100, num_moves=100)
