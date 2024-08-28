@@ -1,8 +1,8 @@
 module Solver where
 
 import Data.Foldable
+import qualified System.Clock as Clock
 import System.IO (stderr, hPutStrLn)
-import System.Time.Extra
 
 import CubeCubies
 
@@ -50,9 +50,9 @@ pruneMove moveNotation moves
 
 {-# LANGUAGE BangPatterns #-}
 -- | Finds the best moves for the current cube state within the given depth limit and time constraint
-findMoves :: Cube -> Int -> Int -> [String] -> Double -> IO ([String], Double, Int, Cube)
+findMoves :: Cube -> Int -> Int -> [String] -> Clock.TimeSpec -> IO ([String], Double, Int, Cube)
 findMoves cube depth limit moves endTime = do
-    currentTime <- getMonotonicTime
+    currentTime <- Clock.getTime Clock.Monotonic
     --putStrLn $ "Depth: " ++ show depth ++ " Time: " ++ show (Clock.diffTimeSpec currentTime endTime)
 
     if currentTime >= endTime
@@ -72,7 +72,7 @@ findMoves cube depth limit moves endTime = do
   where
     checkAndRunMove :: Cube -> [String] -> NamedMove -> IO ([String], Double, Int, Cube)
     checkAndRunMove currentCube currentMoves (NamedMove mv moveNotation) = do
-        currentTime <- getMonotonicTime
+        currentTime <- Clock.getTime Clock.Monotonic
         -- putStrLn $ "Move: " ++ moveNotation ++ " Time: " ++ show (Clock.diffTimeSpec currentTime endTime)
         if currentTime >= endTime || pruneMove moveNotation currentMoves
             then do
@@ -94,20 +94,20 @@ doNRandomMoves cube moves n = do
 
 
 -- | Solves the cube until an improvement is found or time runs out
-solveUntilImprovement :: Cube -> [String] -> Double -> Double -> Int -> Int -> IO (Double, [String], Double)
+solveUntilImprovement :: Cube -> [String] -> Double -> Clock.TimeSpec -> Int -> Int -> IO (Double, [String], Clock.TimeSpec)
 solveUntilImprovement cube moves lastScore endTime searchDepth searchDepthG1 =
     do
         let currentSearchDepth = (if isG1 cube then searchDepthG1 else searchDepth)
         let currentDepth = length moves
         (bestMoves, score, _, newCube) <- findMoves cube currentDepth (currentSearchDepth+currentDepth) moves endTime
-        currentTime <- getMonotonicTime
+        currentTime <- Clock.getTime Clock.Monotonic
         if currentTime >= endTime
             then do
-                return (lastScore, moves, currentTime - endTime)
+                return (lastScore, moves, Clock.diffTimeSpec currentTime endTime)
             else do
                 if score >= 120.0 -- if solved, return
                     then do
-                        return (score, bestMoves, currentTime - endTime)
+                        return (score, bestMoves, Clock.diffTimeSpec currentTime endTime)
                 else
                     if score > lastScore
                         then do
@@ -117,17 +117,22 @@ solveUntilImprovement cube moves lastScore endTime searchDepth searchDepthG1 =
                         (score3, moves3, _) <- solveUntilImprovement mixedCube mixedMoves (evaluate mixedCube) endTime searchDepth searchDepthG1
                         if score3 > lastScore
                             then do
-                                return (score3, moves3, currentTime - endTime)
+                                return (score3, moves3, Clock.diffTimeSpec currentTime endTime)
                         else do
-                            return (lastScore, moves, currentTime - endTime)
+                            return (lastScore, moves, Clock.diffTimeSpec currentTime endTime)
+                        
 
+
+-- | Adds nanoseconds to a TimeSpec
+addNanoSecs :: Clock.TimeSpec -> Integer -> Clock.TimeSpec
+addNanoSecs (Clock.TimeSpec s ns) nsecs = Clock.TimeSpec s (ns + fromIntegral nsecs)
 
 -- | Main function to find a solution for the given cube state
-findSolution :: Cube -> Double -> Int -> Int -> IO [String]
+findSolution :: Cube -> Integer -> Int -> Int -> IO [String]
 findSolution cube timeLimit searchDepth searchDepthG1 = do
     let !currentScore = evaluate cube
-    startTime <- getMonotonicTime
-    let endTime = startTime + timeLimit
+    startTime <- Clock.getTime Clock.Monotonic
+    let endTime = addNanoSecs startTime (timeLimit * (10^(6::Integer)))
     (score, reversedMoves, _) <- solveUntilImprovement cube [] currentScore endTime searchDepth searchDepthG1
     let moves = reverse reversedMoves
     hPutStrLn stderr $ "Final score: " ++ show score

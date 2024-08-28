@@ -12,6 +12,7 @@
 \maketitle
 \section*{Úvod}
 V této práci jsem se rozhodl zkoumat vliv počtu tahů při míchání na dosažené skóre svého řešiče.
+Řešič má určité podobnosti s lidskými řešiteli, a proto by výsledky mohly být použitelné i pro ně.
 Zdrojový kód a notebook s experimenty se dá nalézt na \url{https://github.com/Reblexis/rubik-solver}.
 
 \section*{Popis řešiče}
@@ -52,27 +53,45 @@ postupného přesouvání kostiček na správné pozice.
     \label{fig:scramble_moves_influence}
 \end{figure}
 
-Z grafu můžem vypozorovat, že 25 míchacích tahů nejspíš nestačí a od 30 míchacích
-tahů by již kostka mohla být dostatečně náhodná.
-Jelikož je maximální možný počet tahů k nejkratšímu vyřešení kostky 20 (God's Number),
-mohlo by 30 bohatě stačit.
+Z grafu můžem vypozorovat, že 15 míchacích tahů nejspíš nestačí a od 20 míchacích
+tahů by již kostka mohla být dostatečně náhodná pro lidské řešitele.\\
+Pojďme se ale ujistit, že 15 tahů opravdu není dostatečné.
 
 \subsection*{Test normality distribuce}
 Raději ale tyto hypotézy otestujeme. Nejprve provedeme test, zda mají distribuce skóre normální rozdělení.
 Provedeme tedy Shapiro-Wilkův test s nulovou hypotézou, že data pocházejí z normálního rozdělení.\\
-Spustíme tedy 300-krát řešič jednotlivě pro hodnoty $n = 25$, $n = 30$ a $n = 100$ (což by již mělo být dostatečně náhodné) a zafixujeme $t = 100$, $d1 = 4$ a $d2 = 5$.
+Spustíme 100-krát řešič jednotlivě pro hodnoty $n = 15$, $n = 20$ a $n = 50$ (což by již mělo být dostatečně náhodné)
+a zafixujeme $t = 100$, $d1 = 4$ a $d2 = 5$.\\
 Z testu nám vyšla p-hodnota výrazně menší než 0.05, což znamená, že zamítáme nulovou hypotézu a 
-můžeme tedy říct, že distribuce skóre není normální.\\
+můžeme říct, že distribuce skóre není normální.\\
 
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.8\textwidth]{histogram_scores.png}
-    \caption{Histogram skóre pro $n = 25$, $n = 30$ a $n = 100$}
+    \caption{Histogram skóre pro $n = 15$, $n = 20$ a $n = 50$}
     \label{fig:histogram_scores}
 \end{figure}
 
 \subsection*{KS test}
-Jelikož distribuce není normální, použiji dvouvýběrový KS test.
+Jelikož distribuce není normální, nemůžeme použít t-test a místo toho tedy provedeme
+dvouvýběrový KS test s nulovou hypotézou, že distribuce jsou stejné.\\
+Pro pár $n = 15$ a $n = 50$ vyšlo $p=0.0037$, tedy můžeme nulovou hypotézu zamítnout.\\
+Pro pár $n = 20$ a $n = 50$ vyšlo $p=0.9084$, tedy hypotézu zamítnout nelze.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{ks_test_15_50.png}
+    \caption{KS test pro $n = 15$ a $n = 50$}
+    \label{fig:ks_test_15_50}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{ks_test_20_50.png}
+    \caption{KS test pro $n = 20$ a $n = 50$}
+    \label{fig:ks_test_20_50}
+\end{figure}
+
 
 
 
