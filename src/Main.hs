@@ -39,6 +39,6 @@ main = do
             putStrLn $ "Solution: " ++ show solution
             putStrLn $ "Achieved score: " ++ show score
             -- Uncomment the following line to print the final cube state
-            hPutStrLn stderr $ "Cube: " ++ show finalCube
+            --hPutStrLn stderr $ "Cube: " ++ show finalCube
 
         _ -> putStrLn "Usage: cabal run \"MOVE1 MOVE2 MOVE3 ..\" <time_limit> <search_depth> <search_depth_g1>"
