@@ -58,9 +58,17 @@ cabal run rubik-solver "R LP U D2" 500000 6 8
 
 ### Statistics
 If you want to reproduce statistics experiments you have to build the project first by running:
+
 ```
 cabal build
 ```
+
+Also install python dependencies:
+```
+pip install -r requirements.txt
+```
+
+Then you can find the notebook with experiments in [src/statistics/tests.ipynb](src/statistics/tests.ipynb).
 
 
 
