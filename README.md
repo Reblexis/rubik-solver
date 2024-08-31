@@ -39,7 +39,6 @@ While not directly implementing any specific algorithm from it, this solver was 
 - Performance may vary depending on the initial scramble and the chosen time limit.
 
 ## Usage
-
 ```
 cabal run rubik-solver <shuffle> <time_limit> <search_depth> <search_depth_g1> <random_moves_num>
 ```
@@ -54,7 +53,14 @@ The program will output the solution moves and the achieved score.
 
 ### Example:
 ```
-cabal run "R LP U D2" 500000 6 8
+cabal run rubik-solver "R LP U D2" 500000 6 8
 ```
+
+### Statistics
+If you want to reproduce statistics experiments you have to build the project first by running:
+```
+cabal build
+```
+
 
 
