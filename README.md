@@ -57,7 +57,7 @@ cabal run rubik-solver "R LP U D2" 500000 6 8
 ```
 
 ### Statistics
-If you want to reproduce statistics experiments you have to build the project first by running:
+If you want to reproduce the statistics experiments you have to build the project first by running:
 
 ```
 cabal build
